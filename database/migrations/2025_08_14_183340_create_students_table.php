@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('student_id'); // same type as student_ids.student_id
             $table->string('teacher_id');
-    $table->string('subject');
-    $table->time('class_start');
-    $table->time('class_end');
-    $table->enum('status', ['Present', 'Absent'])->default('Present');
+    // $table->string('subject');
+    // $table->time('class_start');
+    // $table->time('class_end');
+    $table->enum('status', ['Present', 'Absent'])->default('Absent');
     $table->date('date');
     $table->timestamps();
     $table->time('check_in')->nullable();

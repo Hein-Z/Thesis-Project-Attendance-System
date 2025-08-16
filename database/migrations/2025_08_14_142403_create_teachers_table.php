@@ -14,18 +14,18 @@ return new class extends Migration
        
         Schema::create('teachers', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-    $table->id();
-    $table->string('teacher_id', 10); // must match length/type of parent table
-    $table->string('day');
-    $table->time('time')->nullable();
-    $table->string('status')->nullable();
-    $table->timestamps();
+        $table->id();
+        $table->string('teacher_id', 10); // must match length/type of parent table
+        $table->timestamp('check_in')->nullable();
+        $table->timestamp('check_out')->nullable();
+        $table->string('checkout_type')->default('In Class');
+        $table->timestamps();
 
-    $table->foreign('teacher_id')
-          ->references('id')
-          ->on('teacher_id')
-          ->onDelete('cascade');
-        });
+        $table->foreign('teacher_id')
+            ->references('id')
+            ->on('teacher_id')
+            ->onDelete('cascade');
+            });
         
     }
 

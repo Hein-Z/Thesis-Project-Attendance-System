@@ -8,7 +8,7 @@ use App\Models\TeacherID;
 class Teacher extends Model
 {
     protected $table = 'teachers';
-    protected $fillable = ['teacher_id','day','status', 'time'];
+    protected $fillable = ['teacher_id','check_in','checkout_type', 'check_out'];
 
     public function teacher_info()
 {

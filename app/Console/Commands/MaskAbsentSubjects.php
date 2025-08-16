@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 use Illuminate\Console\Command;
 
@@ -26,6 +27,7 @@ class MaskAbsentSubjects extends Command
             ['T004', 'Physics', '10:00', '11:00', ['Monday','Tuesday','Wednesday','Thursday','Friday']],
             ['T003', 'Chemistry', '11:00', '12:00', ['Monday','Tuesday','Wednesday','Thursday','Friday']],
         ];
+
 
         foreach ($timetable as $class) {
             [$teacherId, $subject, $start, $end, $days] = $class;
@@ -60,8 +62,10 @@ class MaskAbsentSubjects extends Command
         }
 
         $this->info('Absent students marked successfully.');
+
+      
     } catch (\Exception $e) {
-        Log::error('MaskAbsentSubjects Error: '.$e->getMessage());
+        $this->error(' Error: ' . $e->getMessage());
     }
     }
 }

@@ -13,6 +13,7 @@ class Student extends Model
         'student_id', 'teacher_id', 'subject',
         'class_start', 'class_end', 'status', 'check_in', 'date'
     ];
+    
 
     // Attendance belongs to a student
     public function student_info()
