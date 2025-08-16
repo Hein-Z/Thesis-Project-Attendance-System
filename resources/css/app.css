@@ -1,0 +1,186 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* Reset some default styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .login-wrapper {
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .login-container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    width: 320px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  .login-form h2 {
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+  }
+  
+  .login-form label {
+    font-size: 14px;
+    margin-top: 10px;
+    display: block;
+    color: #555;
+  }
+  
+  .login-form input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .login-form input:focus {
+    outline: none;
+    border-color: #6a9cff;
+    box-shadow: 0 0 0 2px rgba(106, 156, 255, 0.2);
+  }
+  
+  .login-form button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: #388E3C;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .login-form button:hover {
+    background: #07c66a;
+  }
+  
+  
+  .dh-wrapper{
+      width:100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+  }
+  .class-box{
+      display: grid;
+      grid-template-columns: 100px;
+      margin-left: 20px;
+      margin-right: 20px;
+  }
+  .box-header{
+      /* justify-self: center; */
+  }
+  a{
+      color: black;
+  }
+  .box{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width:200px;
+      height:200px;
+      border:1px solid black;
+      text-decoration: none;
+  
+  }
+  .box:active{
+      
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  header h1 {
+    font-size: 2rem;
+    letter-spacing: 2px;
+  }
+  
+  /* Grid layout for 6 cards */
+  .steps-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Card styling */
+  .step-card {
+    background: #fff;
+    border-radius: 10px;
+    border:solid 2px black;
+    position: relative;
+    padding: 30px 20px 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  
+  /* Step badge in corner */
+  .step-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 0.8rem;
+    color: #555;
+    text-align: center;
+  }
+  .step-badge span {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  /* Icon styling */
+  .step-icon {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step-icon.green   { background: #2ecc71; color: white; }
+  .step-icon.blue    { background: #3498db; color: white; }
+  .step-icon.orange  { background: #e67e22; color: white; }
+  .step-icon.navy    { background: #2980b9; color: white; }
+  .step-icon.yellow  { background: #f1c40f; color: white; }
+  .step-icon.purple  { background: #9b59b6; color: white; }
+  
+  .step-card h2 {
+    font-size: 1.5rem;
+    margin: 10px 0;
+  }
+  
+  .step-card p {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.4;
+  }
