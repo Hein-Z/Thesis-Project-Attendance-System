@@ -15,6 +15,8 @@ class TeacherController extends Controller
         ->orderBy('created_at', 'desc')
         ->get();
 
+
+
     return view('teacher', compact('teachers'));
     }
 

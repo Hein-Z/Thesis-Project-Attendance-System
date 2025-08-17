@@ -170,6 +170,15 @@ table.dataTable tbody tr {
 table.dataTable tbody tr:hover {
     background-color: #e6f5ea;
 }
+
+.bg_blue{
+background-color: #3aa6d1a6;
+}
+
+.bg_red{
+background-color: #e6363691;
+
+}
     </style>
 </head>
 <body>
@@ -196,12 +205,17 @@ table.dataTable tbody tr:hover {
         @endforeach
 
     </select>
-        </div>
     
-        <div class="toolbar">
-            <label for="statusFilter">Status:</label>
-            <select id="statusFilter"></select>
         </div>
+    <div class="toolbar">
+            <label for="dayPicker">Day:</label>
+            <select id="dayPicker"></select>
+        </div>
+        <div class="toolbar">
+            <label for="checkoutTypeFilter">Check Out Type:</label>
+            <select id="checkoutTypeFilter"></select>
+        </div>
+
 
         <button id="clearFilters" type="button">Clear Filters</button>
     </div>
@@ -213,31 +227,39 @@ table.dataTable tbody tr:hover {
                 <th>Name</th>
                 <th>Subject</th>
                 <th>Day</th>
-                <th>Time</th>
-                <th>Status</th>
+                <th>Check In Time</th>
+                <th>Check Out Time</th>
+                <th>Check Out Status</th>
                 <th>Date</th>
                 <th>Options</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($teachers as $teacher)
-                <tr>
+                <tr
+                  @if($teacher->checkout_type == 'auto') 
+        style="background-color: #e636366b; color: black;" 
+    @elseif($teacher->checkout_type == 'In Class') 
+        style="background-color: #3aa6d167; color: black;" 
+    @endif 
+                >
                     <td>{{ $teacher->teacher_id }}</td>
                     <td>{{ $teacher->teacher_info?->name }}</td>
                     <td>{{ $teacher->teacher_info?->subject }}</td>
-                    <td>{{ $teacher->day }}</td>
+                    <td>{{  \Carbon\Carbon::parse($teacher->time)->format('l')  }}</td>
+                    <td>{{  \Carbon\Carbon::parse($teacher->check_in)->format('h.i')  }}</td>
                     <td>
-                        @if ($teacher->time)
-                            {{ \Carbon\Carbon::parse($teacher->time)->format('h:i ') }}
+                        @if ($teacher->check_out)
+                            {{ \Carbon\Carbon::parse($teacher->check_out)->format('h:i ') }}
                         @else
                             -
                         @endif
                     </td>
-                    <td class="{{ $teacher->status }}">
-                        {{ $teacher->status }}
+                    <td>
+                        {{ $teacher->checkout_type }}
                     </td>
-                    <td data-order="{{ $teacher->created_at_myanmar }}">
-                        {{ $teacher->created_at_myanmar}}
+                    <td data-order="{{ \Carbon\Carbon::parse($teacher->time)->format('Y-m-d') }}">
+                        {{ \Carbon\Carbon::parse($teacher->time)->format('Y-m-d')}}
                     </td>
                     <td class="actions-cell">
     <div class="actions">
@@ -276,14 +298,18 @@ table.dataTable tbody tr:hover {
             });
         }
 
+        buildSelect(3, $('#dayPicker'));
       
         buildSelect(5, $('#statusFilter'));
+        buildSelect(6, $('#checkoutTypeFilter'));
     
 
         $('#dateFilter').on('change', function () {
             var selectedDate = $(this).val();
-            table.column(6).search(selectedDate ? '^' + selectedDate + '$' : '', true, false).draw();
+            table.column(7).search(selectedDate ? '^' + selectedDate + '$' : '', true, false).draw();
         });
+
+
 
         $('#clearFilters').on('click', function () {
             $('#dateFilter,  #subjectFilter , #statusFilter').val('');

@@ -10,7 +10,6 @@ class StudentController extends Controller
     {
         $students = Student::with(['student_info', 'teacher_info'])
         ->orderBy('date', 'desc')
-        ->orderBy('class_start')
         ->get();
         return view('student', compact('students'));
     }

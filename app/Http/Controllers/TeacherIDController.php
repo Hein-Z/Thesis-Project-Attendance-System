@@ -57,7 +57,7 @@ class TeacherIDController extends Controller
     }
                 // Auto checkout previous teacher after 1 hour
                 $active->update([
-                    'check_out'     => $checkInTime->copy()->addHour(),
+                    'check_out'     => $checkInTime->copy()->addMinutes(30),
                     'checkout_type' => 'auto'
                 ]);
             }
