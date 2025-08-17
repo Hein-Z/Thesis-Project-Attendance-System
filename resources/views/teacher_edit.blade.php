@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Edit Teacher Attendance</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{asset('css/bootstrap.css')}}">
 
     <style>
         body {
@@ -58,17 +58,42 @@
     </style>
 </head>
 <body>
+@if(session('success'))
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+        <div id="toast-success" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {{ session('success') }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+@endif
 
+@if ($errors->any())
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+        <div id="toast-error" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                     <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            
+            </div>
+        </div>
+    </div>
+@endif
 <div class="card">
     <h2>Edit Teacher Attendance</h2>
 
-    <form action="{{ route('teachers.update', $teacher->id) }}" method="POST">
-        @csrf
-        @method('PUT')
-
-        <div class="mb-3">
-            <label>Teacher Name</label>
-            <input type="text" class="form-control" value="{{ $teacher->teacher_info?->name }}" disabled>
+         <div class="mb-3">
+            <label>Teacher Name and ID</label>
+            <input type="text" class="form-control" value="{{ $teacher->teacher_info?->name }} [{{ $teacher->teacher_id }}]" disabled>
         </div>
 
         <div class="mb-3">
@@ -77,37 +102,71 @@
         </div>
 
         <div class="mb-3">
-            <label>Day</label>
-            <input type="text" class="form-control" value="{{ $teacher->day }}" disabled>
+            <label>Date</label>
+            <input type="text" class="form-control" value="{{  \Carbon\Carbon::parse($teacher->check_in)->format('Y-m-d l')  }}" disabled>
         </div>
-
-        <div class="mb-3">
-    <label>Date</label>
-    <input type="date" class="form-control" value="{{ $teacher->created_at->format('Y-m-d') }}" disabled>
-</div>
 
         <div class="mb-3">
             <label>Status</label>
-            <select name="status" class="form-control" required>
-                <option value="In" {{ $teacher->status === 'In' ? 'selected' : '' }}>In</option>
-                <option value="Out" {{ $teacher->status === 'Out' ? 'selected' : '' }}>Out</option>
-                <option value="Absent" {{ $teacher->status === 'Absent' ? 'selected' : '' }}>Absent</option>
+            <select name="status" class="form-control" disabled>
+                <option value="changed by admin" {{ $teacher->checkout_type === 'changed by admin' ? 'selected' : '' }}>"Changed by Admin</option>
+                <option value="In Class" {{ $teacher->status === 'In Class' ? 'selected' : '' }}>In Class</option>
+                <option value="manual" {{ $teacher->status === 'manual' ? 'selected' : '' }}>Manual</option>
+                <option value="auto" {{ $teacher->status === 'auto' ? 'selected' : '' }}>Auto</option>
+
             </select>
         </div>
-
-        <div class="mb-3">
-            <label>Time</label>
-            <input type="time" name="time" class="form-control" value="{{ $teacher->time ? \Carbon\Carbon::parse($teacher->time)->format('H:i') : '' }}">
+    <form method="POST" action="{{ route('teachers.update', $teacher->id) }}">
+        @csrf
+          @method('PUT') 
+        <div class="form-group mb-3" hidden>
+            <label>Teacher ID</label>
+            <input type="text" class="form-control" value="{{ $teacher->teacher_id }}" disabled>
         </div>
+
+        <div class="form-group mb-3">
+            <label>Check In Time</label>
+            <input type="datetime-local" name="check_in" class="form-control" 
+                   value="{{ $teacher->check_in ? \Carbon\Carbon::parse($teacher->check_in)->format('Y-m-d\TH:i') : '' }}">
+        </div>
+
+        <div class="form-group mb-3">
+            <label>Check Out Time</label>
+            <input type="datetime-local" name="check_out" class="form-control" 
+                   value="{{ $teacher->check_out ? \Carbon\Carbon::parse($teacher->check_out)->format('Y-m-d\TH:i') : '' }}">
+        </div>
+<div class="d-flex justify-content-between">
+    <button type="submit" class="btn btn-primary">Update Attendance</button>
+    <a href="{{ route('teachers.index')}}" class="btn btn-secondary">Back</a>
+
+</div>
+
+    </form>
 
    
 
-        <div class="d-flex justify-content-between">
-            <a href="{{ route('teachers.index') }}" class="btn btn-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary">Update</button>
-        </div>
-    </form>
-</div>
 
+   
+
+       
+</div>
+<script src="{{asset('js/bootstrap.js')}}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var toastSuccess = document.getElementById('toast-success');
+        if (toastSuccess) {
+            var bsToast = new bootstrap.Toast(toastSuccess, { delay: 3000 });
+            bsToast.show();
+        }
+
+        var toastError = document.getElementById('toast-error');
+        if (toastError) {
+            var bsToast = new bootstrap.Toast(toastError, { delay: 3000 });
+            bsToast.show();
+        }
+    });
+</script>
 </body>
+
 </html>

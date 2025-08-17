@@ -188,13 +188,6 @@ background-color: #e6363691;
     <!-- Filter Bar -->
     <div class="filters">
         <div class="toolbar">
-            <label for="dateFilter">Date:</label>
-            <input type="date" id="dateFilter" />
-        </div>
-
-        
-
-        <div class="toolbar">
         <label for="subjectFilter"><b>Subject:</b></label>
     <select id="subjectFilter" class="form-control" style="width: 250px; display: inline-block;">
         <option value="">All</option>
@@ -207,10 +200,16 @@ background-color: #e6363691;
     </select>
     
         </div>
-    <div class="toolbar">
-            <label for="dayPicker">Day:</label>
-            <select id="dayPicker"></select>
-        </div>
+    <!-- Replace your current dateFilter input with a date range filter -->
+<div class="toolbar">
+    <label for="start_date">Start Date:</label>
+    <input type="date" id="start_date">
+</div>
+<div class="toolbar">
+    <label for="end_date">End Date:</label>
+    <input type="date" id="end_date">
+</div>
+
         <div class="toolbar">
             <label for="checkoutTypeFilter">Check Out Type:</label>
             <select id="checkoutTypeFilter"></select>
@@ -238,19 +237,21 @@ background-color: #e6363691;
             @foreach ($teachers as $teacher)
                 <tr
                   @if($teacher->checkout_type == 'auto') 
-        style="background-color: #e636366b; color: black;" 
+        style="background-color: #e6363649; color: black;" 
     @elseif($teacher->checkout_type == 'In Class') 
-        style="background-color: #3aa6d167; color: black;" 
+        style="background-color: #1669e67a; color: black;" 
+         @elseif($teacher->checkout_type == 'changed by admin') 
+        style="background-color: #2dc6da57; color: black;" 
     @endif 
                 >
                     <td>{{ $teacher->teacher_id }}</td>
-                    <td>{{ $teacher->teacher_info?->name }}</td>
+                    <td><a href="{{ route('teachers.profile', $teacher->teacher_id) }}">{{ $teacher->teacher_info?->name }}</a></td>
                     <td>{{ $teacher->teacher_info?->subject }}</td>
-                    <td>{{  \Carbon\Carbon::parse($teacher->time)->format('l')  }}</td>
-                    <td>{{  \Carbon\Carbon::parse($teacher->check_in)->format('h.i')  }}</td>
+                    <td>{{  \Carbon\Carbon::parse($teacher->check_in)->format('l')  }}</td>
+                    <td>{{  \Carbon\Carbon::parse($teacher->check_in)->format('H:i A')  }}</td>
                     <td>
                         @if ($teacher->check_out)
-                            {{ \Carbon\Carbon::parse($teacher->check_out)->format('h:i ') }}
+                            {{ \Carbon\Carbon::parse($teacher->check_out)->format('H:i A') }}
                         @else
                             -
                         @endif
@@ -258,8 +259,8 @@ background-color: #e6363691;
                     <td>
                         {{ $teacher->checkout_type }}
                     </td>
-                    <td data-order="{{ \Carbon\Carbon::parse($teacher->time)->format('Y-m-d') }}">
-                        {{ \Carbon\Carbon::parse($teacher->time)->format('Y-m-d')}}
+                    <td data-order="{{ \Carbon\Carbon::parse($teacher->check_in)->format('Y-m-d') }}">
+                        {{ \Carbon\Carbon::parse($teacher->check_in)->format('Y-m-d')}}
                     </td>
                     <td class="actions-cell">
     <div class="actions">
@@ -280,53 +281,63 @@ background-color: #e6363691;
 
     <script>
     $(function () {
-        var table = $('#teachersTable').DataTable({
-            order: [[6, 'desc']],
-            pageLength: 10
-        });
+       var table = $('#teachersTable').DataTable({
+        order: [[7, 'desc']],
+        pageLength: 10
+    });
 
-        function buildSelect(columnIndex, $select) {
-            $select.empty().append('<option value="">All</option>');
-            var data = table.column(columnIndex).data().unique().sort();
-            data.each(function (d) {
-                var text = $('<div>').html(d).text().trim();
-                if (text) $select.append('<option value="' + text + '">' + text + '</option>');
-            });
-            $select.on('change', function () {
-                var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                table.column(columnIndex).search(val ? '^' + val + '$' : '', true, false).draw();
-            });
+    function buildSelect(columnIndex, $select) {
+        $select.empty().append('<option value="">All</option>');
+        var data = table.column(columnIndex).data().unique().sort();
+        data.each(function (d) {
+            var text = $('<div>').html(d).text().trim();
+            if (text) $select.append('<option value="' + text + '">' + text + '</option>');
+        });
+        $select.on('change', function () {
+            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+            table.column(columnIndex).search(val ? '^' + val + '$' : '', true, false).draw();
+        });
+    }
+
+    buildSelect(3, $('#dayPicker'));
+    buildSelect(5, $('#statusFilter'));
+    buildSelect(6, $('#checkoutTypeFilter'));
+
+    // Custom date range filter
+    $.fn.dataTable.ext.search.push(
+        function(settings, data) {
+            var start = $('#start_date').val();
+            var end = $('#end_date').val();
+            var date = data[7]; // Date column
+
+            if(start && date < start) return false;
+            if(end && date > end) return false;
+            return true;
         }
+    );
 
-        buildSelect(3, $('#dayPicker'));
-      
-        buildSelect(5, $('#statusFilter'));
-        buildSelect(6, $('#checkoutTypeFilter'));
-    
+    $('#start_date, #end_date').on('change', function() {
+        table.draw();
+    });
 
-        $('#dateFilter').on('change', function () {
-            var selectedDate = $(this).val();
-            table.column(7).search(selectedDate ? '^' + selectedDate + '$' : '', true, false).draw();
-        });
-
-
-
-        $('#clearFilters').on('click', function () {
-            $('#dateFilter,  #subjectFilter , #statusFilter').val('');
-            table.columns().search('').draw();
-        });
-
-        $('#subjectFilter').on('change', function () {
+    // Keep your other filters
+    $('#subjectFilter').on('change', function () {
         var searchValue = $(this).val();
         if (searchValue) {
-            table.columns(1).search(searchValue.split(' - ')[0]); // Name column
-            table.columns(2).search(searchValue.split(' - ')[1]); // Subject column
+            table.columns(1).search(searchValue.split(' - ')[0]); // Name
+            table.columns(2).search(searchValue.split(' - ')[1]); // Subject
         } else {
             table.columns(1).search('');
             table.columns(2).search('');
         }
         table.draw();
     });
+
+    $('#clearFilters').on('click', function () {
+        $('#start_date, #end_date, #subjectFilter, #statusFilter').val('');
+        table.columns().search('').draw();
+    });
+
 
     $('.delete-btn').click(function() {
     var teacherId = $(this).data('id');

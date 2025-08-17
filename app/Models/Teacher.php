@@ -10,6 +10,11 @@ class Teacher extends Model
     protected $table = 'teachers';
     protected $fillable = ['teacher_id','check_in','checkout_type', 'check_out'];
 
+
+    protected $casts = [
+        'check_in'  => 'datetime',
+        'check_out' => 'datetime',
+    ];
     public function teacher_info()
 {
     return $this->belongsTo(TeacherID::class, 'teacher_id', 'id');

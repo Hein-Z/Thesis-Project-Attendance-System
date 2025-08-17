@@ -31,8 +31,11 @@ Route::get('/{student_id}/student', [StudentIDController::class, 'storeById']);
 Route::prefix('teachers')->name('teachers.')->group(function () {
     Route::get('/', [TeacherController::class, 'show'])->name('index');
     Route::get('/{teacher}/edit', [TeacherController::class, 'edit'])->name('edit');
-    Route::put('/{teacher}', [TeacherController::class, 'update'])->name('update');
+    Route::put('/{id}', [TeacherController::class, 'update'])->name('update');
     Route::delete('/{teacher}', [TeacherController::class, 'destroy'])->name('destroy');
+Route::get('/{teacher}/profile', [TeacherController::class, 'profile'])->name('profile');
+    Route::get('{teacher}/attendance-data', [TeacherController::class, 'attendanceData'])->name('attendance.data');
+
 });
 
 use Carbon\Carbon;

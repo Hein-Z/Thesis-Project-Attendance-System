@@ -36,7 +36,7 @@ class StudentAttendanceController extends Controller
             ->where('id', $already->id)
             ->update([
                 'status'     => 'Present',
-                'check_in'   => $now->format('H:i'),
+                'check_in'   => Carbon::now('Asia/Yangon'),
                 'updated_at' => now('Asia/Yangon'),
             ]);
             return response()->json(['message' => "Attendance updated for student {$student_id}"]);

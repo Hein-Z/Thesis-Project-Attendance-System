@@ -147,7 +147,7 @@
                 <th>Student ID</th>
                 <th>Name</th>
                 <th>Class</th>
-                <th>Time</th>
+                <th>Time In</th>
                 <th>Status</th>
                 <th>Date</th>
             </tr>
@@ -160,7 +160,8 @@
                     
                     <td>{{ $student->teacher_info->name }}-{{ $student->teacher_info->subject }}</td>
                     
-                    <td>{{ $student->check_in ?? '-' }}</td>
+                    <td>{{ \Carbon\Carbon::parse($student->check_in)->format('h:i A')?? '-' }}</td>
+                    
                     
                     <td class="{{ $student->status }}">
                         {{ $student->status }}
@@ -179,7 +180,11 @@
             order: [[5, 'desc']],
             pageLength: 10
         });
-
+     $('#dateFilter').on('change', function () {
+            var selectedDate = $(this).val();
+            table.column(5).search(selectedDate ? '^' + selectedDate + '$' : '', true, false).draw();
+        });
+       
         function buildSelect(columnIndex, $select) {
             $select.empty().append('<option value="">All</option>');
             var data = table.column(columnIndex).data().unique().sort();
@@ -199,10 +204,7 @@
         buildSelect(4, $('#statusFilter'));
     
 
-        $('#dateFilter').on('change', function () {
-            var selectedDate = $(this).val();
-            table.column(6).search(selectedDate ? '^' + selectedDate + '$' : '', true, false).draw();
-        });
+       
 
         $('#clearFilters').on('click', function () {
             $('#dateFilter,  #statusFilter, #nameFilter, #classFilter').val('');
