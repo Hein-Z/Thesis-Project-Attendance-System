@@ -116,40 +116,57 @@ tr:hover .actions {
     background-color: #7a0015;
     transform: scale(1.1);
 }
+
+.hidden {
+  display: none;
+}
     </style>
 </head>
 <body>
 <div class="container mt-5">
     <h2>Teacher Attendance Profile: {{ $teacher->name }}</h2>
+@php
+    $totalMinutes = $attendances->sum(function($t){
+        if($t->check_in && $t->check_out){
+            return \Carbon\Carbon::parse($t->check_in)
+                   ->diffInMinutes(\Carbon\Carbon::parse($t->check_out));
+        }
+        return 0;
+    });
+    $totalHours = floor($totalMinutes / 60);
+    $totalMins  = $totalMinutes % 60;
+@endphp
 
+<div style="text-align:center; margin-bottom:15px;">
+    <strong>Total Class Time: {{ $totalHours }}h {{ $totalMins }}m</strong>
+</div>
     <!-- Filters -->
-    <div class="mb-3 filters">
-        <div class="toolbar">
-            <label for="start_date">Start Date:</label>
-            <input type="date" id="start_date">
-        </div>
-        <div class="toolbar">
-            <label for="end_date">End Date:</label>
-            <input type="date" id="end_date">
-        </div>
-        <div class="toolbar">
-            <label for="checkout_type">Checkout Type:</label>
-            <select id="checkout_type">
-                <option value="">All</option>
-                <option value="manual">Manual</option>
-                <option value="auto">Auto</option>
-                <option value="changed by admin">Changed by Admin</option>
-            </select>
-        </div>
-        <button id="clearFilter" class="btn btn-secondary">Clear</button>
+    <div class="row mb-3 filters">
+    <div class="col-md-3 toolbar">
+        <label>Start Date</label>
+        <input type="date" id="start_date" class="form-control">
     </div>
+    <div class="col-md-3 toolbar">
+        <label>End Date</label>
+        <input type="date" id="end_date" class="form-control">
+    </div>
+    <div class="col-md-3 toolbar" id="filterRow">
+        <!-- DataTables will inject checkout_type select here -->
+    </div>
+    <div class="col-md-3 toolbar d-flex align-items-end">
+        <button id="clearFilter" class="btn btn-secondary">Clear Filter</button>
+    </div>
+</div>
+
 
     <table id="attendanceTable" class="display table table-striped">
         <thead>
             <tr>
+                <th class='hidden'>Time</th>
                 <th>Date</th>
                 <th>Check In</th>
                 <th>Check Out</th>
+                <th>Duration</th>
                 <th>Checkout Type</th>
                <th>Option</th>
 
@@ -166,19 +183,31 @@ tr:hover .actions {
         style="background-color: #2dc6da57; color: black;" 
     @endif 
             >
+                <td class="hidden">{{ $att->check_in }}</td>
+
                 <td>{{ $att->check_in ? \Carbon\Carbon::parse($att->check_in)->format('y/m/d l' ) : '-' }}</td>
                 <td>{{ \Carbon\Carbon::parse($att->check_in)->format('h:i a') ?? '-' }}</td>
-                               <td>{{ \Carbon\Carbon::parse($att->check_out)->format('h:i a') ?? '-' }}</td>
-
+                               <td>{{$att->check_out ? \Carbon\Carbon::parse($att->check_out)->format('h:i a') : '-' }}</td>
+@php
+    $durationText = '-';
+    if($att->check_in && $att->check_out){
+        $minutes = \Carbon\Carbon::parse($att->check_in)
+                  ->diffInMinutes(\Carbon\Carbon::parse($att->check_out));
+        $hours = floor($minutes / 60);
+        $mins  = $minutes % 60;
+        $durationText = ($hours > 0 ? $hours.'h ' : '') . $mins.'m';
+    }
+@endphp
+<td>{{ $durationText }}</td>
                 <td>{{ $att->checkout_type ?? '-' }}</td>
                  <td class="actions-cell">
     <div class="actions">
-        <a href="{{ route('teachers.edit', $teacher->id) }}" data-id="{{ $teacher->id }}" 
+        <a href="{{ route('teachers.edit', $att->id) }}" data-id="{{ $att->id }}" 
         class="edit-btn" title="Edit">
             ✏️
         </a>
       
-            <button type="submit" data-id="{{ $teacher->id }}" 
+            <button type="submit" data-id="{{ $att->id }}" 
             class="delete-btn" title="Delete" onclick="return confirm('Are you sure you want to delete this attendance?')">🗑️</button>
        
     </div>
@@ -192,42 +221,104 @@ tr:hover .actions {
 <script>
 $(document).ready(function() {
     var table = $('#attendanceTable').DataTable({
-        "rowCallback": function(row, data) {
-          
+        "order": [[0, "desc"]],
+        initComplete: function () {
+            this.api().columns().every(function () {
+                var column = this;
+
+                // Only apply to Checkout Type column (index 4 here)
+                if (column.index() === 5) {
+                    var select = $('<select id="checkout_type" class="form-control"><option value="">All</option></select>')
+                        .appendTo($('#filterRow'))   // Add to a placeholder div
+                        .on('change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                            column.search(val ? '^' + val + '$' : '', true, false).draw();
+                        });
+
+                    // Build dropdown options dynamically from column data
+                    column.data().unique().sort().each(function (d, j) {
+                        if (d) {
+                            select.append('<option value="' + d + '">' + d + '</option>')
+                        }
+                    });
+                }
+            });
         },
-        "order": [[1, "desc"]] // default sort by Date descending
+        "rowCallback": function(row, data) {
+            $(row).removeClass('manual auto changed inclass');
+            let type = data[4].toLowerCase();
+            if(type === 'manual') $(row).addClass('manual');
+            else if(type === 'auto') $(row).addClass('auto');
+            else if(type === 'changed by admin') $(row).addClass('changed');
+            else if(type === 'in class') $(row).addClass('inclass');
+        }
     });
 
-    // Custom date range & checkout type filter
-    $.fn.dataTable.ext.search.push(
-        function(settings, data) {
-            let start = $('#start_date').val();
-            let end = $('#end_date').val();
-            let type = $('#checkout_type').val().toLowerCase();
+    // Date range filter
+    $.fn.dataTable.ext.search.push(function(settings, data) {
+        let start = $('#start_date').val();
+        let end = $('#end_date').val();
+        let date = data[0]; // Date column
 
-            let date = data[0];      // Date column
-            let checkout = data[3].toLowerCase(); // Checkout type column
+        if(start && date < start) return false;
+        if(end && date > end) return false;
+        return true;
+    });
 
-            if(start && date < start) return false;
-            if(end && date > end) return false;
-            if(type && checkout !== type) return false;
-
-            return true;
-        }
-    );
-
-    $('#start_date, #end_date, #checkout_type').on('change', function() {
-        table.order([[0, "desc"]]).draw();
+    $('#start_date, #end_date').on('change', function() {
+        table.draw();
     });
 
     $('#clearFilter').on('click', function() {
         $('#start_date, #end_date').val('');
         $('#checkout_type').val('');
-        table.order([[0, "desc"]]).draw();
+        table.search('').columns().search('').draw();
     });
+  $('.delete-btn').click(function() {
+    var teacherId = $(this).data('id');
+    var row = $(this).closest('tr');
+
+    var password = prompt("Enter password to delete:");
+    if(password !== '12345678') {
+        alert("Incorrect password!");
+        return;
+    }
+
+    if(confirm("Are you sure you want to delete this attendance?")) {
+        $.ajax({
+            url: '/teachers/' + teacherId,
+            type: 'DELETE',
+            data: { _token: '{{ csrf_token() }}' },
+            success: function(response) {
+                // Remove main row
+                row.fadeOut(500, function() { $(this).remove(); });
+
+             
+            },
+            error: function(xhr) {
+                alert("Error deleting attendance.");
+            }
+        });
+    }
 });
 
+  // EDIT (optional: open modal or prompt)
+    $('.edit-btn').click(function(e) {
+        e.preventDefault(); // Prevent default link
 
+        var teacherId = $(this).data('id');
+        var password = prompt("Enter password to edit:");
+        if(password !== '12345678') {
+            alert("Incorrect password!");
+            return;
+        }
+
+        // Redirect to edit page
+        window.location.href = '/teachers/' + teacherId + '/edit';
+    });
+
+});
 </script>
+
 </body>
 </html>

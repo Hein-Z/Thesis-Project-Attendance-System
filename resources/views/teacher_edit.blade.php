@@ -137,7 +137,7 @@
         </div>
 <div class="d-flex justify-content-between">
     <button type="submit" class="btn btn-primary">Update Attendance</button>
-    <a href="{{ route('teachers.index')}}" class="btn btn-secondary">Back</a>
+    <a  href="{{ url()->previous() }}"class="btn btn-secondary">Back</a>
 
 </div>
 
