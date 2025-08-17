@@ -142,12 +142,6 @@
 </div>
 
     </form>
-
-   
-
-
-   
-
        
 </div>
 <script src="{{asset('js/bootstrap.js')}}"></script>
