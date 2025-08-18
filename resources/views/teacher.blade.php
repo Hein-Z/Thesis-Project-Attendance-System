@@ -183,7 +183,7 @@ background-color: #e6363691;
 </head>
 <body>
 
-    <h2>Teacher Attendance</h2>
+    <h2>Teachers' Attendance History</h2>
 
     <!-- Filter Bar -->
     <div class="filters">
@@ -217,6 +217,8 @@ background-color: #e6363691;
 
 
         <button id="clearFilters" type="button">Clear Filters</button>
+      <a  href="{{ url()->previous() }}"class="btn btn-secondary">Back</a>
+
     </div>
 
     <table id="teachersTable" class="display" style="width:100%">
@@ -244,7 +246,7 @@ background-color: #e6363691;
         style="background-color: #2dc6da57; color: black;" 
     @endif 
                 >
-                    <td>{{ $teacher->teacher_id }}</td>
+                    <td><a href="{{ route('teachers.profile', $teacher->teacher_id) }}">{{ $teacher->teacher_id }}</a></td>
                     <td><a href="{{ route('teachers.profile', $teacher->teacher_id) }}">{{ $teacher->teacher_info?->name }}</a></td>
                     <td>{{ $teacher->teacher_info?->subject }}</td>
                     <td>{{  \Carbon\Carbon::parse($teacher->check_in)->format('l')  }}</td>

@@ -228,7 +228,7 @@ body.dark-theme #particlesCanvas {
 </head>
 <body>
 <div class="container mt-5">
-    <h2>Teacher Attendance Profile: {{ $teacher->name }}</h2>
+    <h2>Teacher's Attendance Profile: {{ $teacher->name }}</h2>
 @php
     $totalMinutes = $attendances->sum(function($t){
         if($t->check_in && $t->check_out){
@@ -257,6 +257,7 @@ body.dark-theme #particlesCanvas {
     <div style="text-align:center;">
     <button id="darkThemeToggle" class="animated-btn">🌙 Dark Theme</button>
 </div>
+
 </div>
     <div class="col-md-3 toolbar">
         <label>Start Date</label>
@@ -272,6 +273,8 @@ body.dark-theme #particlesCanvas {
     <div class="col-md-3 toolbar d-flex align-items-end">
         <button id="clearFilter" class="btn btn-secondary">Clear Filter</button>
     </div>
+      <a  href="{{ url()->previous() }}"class="btn btn-secondary">Back</a>
+
 </div>
 
     <table id="attendanceTable" class="display table table-striped" style="width:100%">
@@ -558,7 +561,7 @@ const myChart = new Chart(ctx, {
                     }
                 },
                 backgroundColor: 'transparent', // ADD THIS LINE
-maintainAspectRatio: false,
+
                 titleColor: '#fff',
                 bodyColor: '#fff',
                 bodyFont: { weight: '600' },

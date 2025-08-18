@@ -7,7 +7,6 @@ use App\Http\Controllers\TeacherIDController;
 use App\Http\Controllers\StudentIDController;
 use App\Http\Controllers\StudentAttendanceController;
 
-
 Route::get('/', function () {
     return view('welcome');
 });
@@ -52,3 +51,6 @@ Route::get('/time', function () {
 Route::get('/attendance/mark-absent', [StudentAttendanceController::class, 'markAbsent']);
 
 Route::get('/{student_id}/student', [StudentAttendanceController::class, 'markAttendance']);
+
+
+Route::get('/students/{id}', [StudentController::class, 'profile'])->name('students.profile');

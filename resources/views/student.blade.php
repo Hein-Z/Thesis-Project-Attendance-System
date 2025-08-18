@@ -114,7 +114,7 @@
 </head>
 <body>
 
-    <h2>Student Attendance</h2>
+    <h2>Students' Attendance History</h2>
 
     <!-- Filter Bar -->
     <div class="filters">
@@ -155,8 +155,8 @@
         <tbody>
             @foreach ($students as $student)
                 <tr>
-                    <td>{{ $student->student_id }}</td>
-                    <td>{{ $student->student_info->name }}</td>
+                    <td><a href="{{ route('students.profile', $student->student_id) }}">{{ $student->student_id }}</a></td>
+                    <td><a href="{{ route('students.profile', $student->student_id) }}">{{ $student->student_info->name }}</a></td>
                     
                     <td>{{ $student->teacher_info->name }}-{{ $student->teacher_info->subject }}</td>
                     
