@@ -8,6 +8,14 @@
     <script src="{{ asset('js/jquery.js') }}"></script>
     <script src="{{ asset('js/table.js') }}"></script>
     <script src="{{ asset('js/chart.js') }}"></script>
+<!-- Load SweetAlert2 -->
+<script src="{{ asset('js/sweetalert.js') }}"></script>
+
+<!-- Load your notification script -->
+<script src="{{ asset('js/noti.js') }}"></script>
+
+    <!-- <script src="{{ asset('js/echo.js') }}"></script> -->
+    
 
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f5fdf6; color: #222; margin: 0; padding: 20px; }

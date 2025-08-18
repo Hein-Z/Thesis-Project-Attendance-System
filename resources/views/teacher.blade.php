@@ -11,6 +11,15 @@
     <script src="{{ asset('js/jquery.js') }}"></script>
 
     <script src="{{ asset('js/table.js') }}"></script>
+      <!-- <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script> -->
+<!-- Load SweetAlert2 -->
+<script src="{{ asset('js/sweetalert.js') }}"></script>
+
+<!-- Load your notification script -->
+<script src="{{ asset('js/noti.js') }}"></script>
+
+
+    <!-- <script src="{{ asset('js/echo.js') }}"></script> -->
 
     <style>
         body {
@@ -282,7 +291,12 @@ background-color: #e6363691;
     </table>
 
     <script>
+
+        
     $(function () {
+
+     
+
        var table = $('#teachersTable').DataTable({
         order: [[7, 'desc']],
         pageLength: 10

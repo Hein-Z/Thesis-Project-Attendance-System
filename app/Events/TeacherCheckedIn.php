@@ -7,30 +7,36 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Teacher;
 
-class TeacherCheckedIn
+class TeacherCheckedIn implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    // use InteractsWithSockets, SerializesModels;
+ use  InteractsWithSockets, SerializesModels;
 
-    /**
-     * Create a new event instance.
-     */
-    public function __construct()
+    public $attendance;
+
+    public function __construct($attendance)
     {
-        //
+        $this->attendance = $attendance;
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
-     */
-    public function broadcastOn(): array
+    public function broadcastOn()
+    {
+        return new Channel('teacher-attendance');
+    }
+
+    public function broadcastAs()
+    {
+        return 'teacher.checked-in';
+    }
+
+    public function broadcastWith()
     {
         return [
-            new PrivateChannel('channel-name'),
+            'teacher_id' => $this->attendance->teacher_id,
+            'time' => $this->attendance->check_in ?? $this->attendance->check_out,
         ];
     }
 }

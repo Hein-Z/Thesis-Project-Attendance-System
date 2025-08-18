@@ -5,7 +5,11 @@
     <meta charset="UTF-8">
     <title>Edit Teacher Attendance</title>
     <link rel="stylesheet" href="{{asset('css/bootstrap.css')}}">
+<!-- Load SweetAlert2 -->
+<script src="{{ asset('js/sweetalert.js') }}"></script>
 
+<!-- Load your notification script -->
+<script src="{{ asset('js/noti.js') }}"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;

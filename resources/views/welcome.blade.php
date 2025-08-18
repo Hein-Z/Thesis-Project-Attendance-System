@@ -5,6 +5,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>Laravel</title>
+<!-- Load SweetAlert2 -->
+<script src="{{ asset('js/sweetalert.js') }}"></script>
+
+<!-- Load your notification script -->
+<script src="{{ asset('js/noti.js') }}"></script>
+    <!-- <script src="{{ asset('js/echo.js') }}"></script> -->
 
         <!-- Fonts
         <link rel="preconnect" href="https://fonts.bunny.net">

@@ -36,6 +36,8 @@ Route::get('/{teacher}/profile', [TeacherController::class, 'profile'])->name('p
     Route::get('{teacher}/attendance-data', [TeacherController::class, 'attendanceData'])->name('attendance.data');
 
 });
+Route::get('/latest-teacher-attendance', [TeacherController::class, 'latest']);
+
 
 use Carbon\Carbon;
 

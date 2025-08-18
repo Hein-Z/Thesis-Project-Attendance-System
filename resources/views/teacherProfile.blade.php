@@ -10,7 +10,13 @@
     <script src="{{ asset('js/jquery.js') }}"></script>
     <script src="{{ asset('js/table.js') }}"></script>
     <script src="{{ asset('js/chart.js') }}"></script>
+    <!-- @vite('resources/js/app.js') -->
+    <!-- <script src="{{ asset('js/echo.js') }}"></script> -->
+<!-- Load SweetAlert2 -->
+<script src="{{ asset('js/sweetalert.js') }}"></script>
 
+<!-- Load your notification script -->
+<script src="{{ asset('js/noti.js') }}"></script>
     <style>
         .manual { background-color: #ffffffff !important; }
         .auto { background-color: #e6363650 !important; }

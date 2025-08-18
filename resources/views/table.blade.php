@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>School Timetable & Attendance</title>
+<!-- Load SweetAlert2 -->
+<script src="{{ asset('js/sweetalert.js') }}"></script>
+
+<!-- Load your notification script -->
+<script src="{{ asset('js/noti.js') }}"></script>
   <style>
     body {
       margin: 0;

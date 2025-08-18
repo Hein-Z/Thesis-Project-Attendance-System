@@ -81,4 +81,22 @@ public function profile($teacher_id)
     return view('teacherProfile', compact('teacher', 'attendances', 'weeklyData'));
 }
 
+public function latest()
+{
+    $today = Carbon::now('Asia/Yangon')->toDateString();
+
+    $teacher = Teacher::whereDate('created_at', $today)
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    if ($teacher) {
+        return response()->json([
+            'teacher_id' => $teacher->teacher_id,
+            'created_at'       => $teacher->check_in->format('H:i:s'),
+        ]);
+    }
+
+    return response()->json(null);
+}
+
 }

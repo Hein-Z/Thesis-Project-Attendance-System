@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>School Classroom Management</title>
+    <!-- <script src="{{ asset('js/echo.js') }}"></script> -->
+<!-- Load SweetAlert2 -->
+<script src="{{ asset('js/sweetalert.js') }}"></script>
+
+<!-- Load your notification script -->
+<script src="{{ asset('js/noti.js') }}"></script>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;

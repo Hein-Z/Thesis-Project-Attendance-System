@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\StudentID;
+use App\Events\TeacherCheckedIn;
 
 class TeacherIDController extends Controller
 {
@@ -56,18 +57,21 @@ class TeacherIDController extends Controller
         ]);
     }
                 // Auto checkout previous teacher after 1 hour
-                $active->update([
+               $active->update([
                     'check_out'     => $checkInTime->copy()->addMinutes(30),
                     'checkout_type' => 'auto'
                 ]);
+             
+
             }
         }
 
         // Store new teacher session
-        Teacher::create([
+      $attendance=  Teacher::create([
             'teacher_id' => $teacher_id,
             'check_in'   => $now
         ]);
+//   broadcast(new TeacherCheckedIn($attendance))->toOthers();
 
         return response()->json([
             'message' => 'Teacher checked in successfully'
@@ -78,7 +82,8 @@ class TeacherIDController extends Controller
             'check_out'     => $now,
             'checkout_type' => 'manual'
         ]);
-
+    $attendance=$teacherSession;
+//   broadcast(new TeacherCheckedIn($attendance))->toOthers();
         // Mark absentees: students who did not check in
         $allStudents = StudentID::pluck('student_id')->toArray();
         $presentStudents = Student::where('teacher_id', $teacher_id)
@@ -96,6 +101,7 @@ class TeacherIDController extends Controller
                 'date'       => $today
             ]);
         }
+//   broadcast(new TeacherCheckedIn($attendance))->toOthers();
 
         return response()->json([
             'message' => 'Teacher checked out & absentees marked'
