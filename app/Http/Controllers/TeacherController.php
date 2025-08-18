@@ -85,17 +85,18 @@ public function latest()
 {
     $today = Carbon::now('Asia/Yangon')->toDateString();
 
-    $teacher = Teacher::whereDate('created_at', $today)
-        ->orderBy('created_at', 'desc')
+    $teacher = Teacher::whereDate('updated_at', $today)->with('teacher_info')
+        ->orderBy('updated_at', 'desc')
         ->first();
 
-    if ($teacher) {
+       if ($teacher) {
         return response()->json([
             'teacher_id' => $teacher->teacher_id,
-            'created_at'       => $teacher->check_in->format('H:i:s'),
+            'name'=>$teacher->teacher_info->name,
+            'check_in'   => $teacher->check_in ? $teacher->check_in->format('H:i:s') : null,
+            'check_out'  => $teacher->check_out ? $teacher->check_out->format('H:i:s') : null,
         ]);
     }
-
     return response()->json(null);
 }
 

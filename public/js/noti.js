@@ -1,26 +1,34 @@
-let lastCheckedKey = null;
+let lastActivityKey = null;
 
 function fetchAttendance() {
     fetch('/latest-teacher-attendance')
         .then(res => res.json())
         .then(data => {
-            console.log(`${data.teacher_id}_${data.created_at}`);
-            console.log(lastCheckedKey);
-            console.log(`${data.teacher_id}_${data.created_at}` !== lastCheckedKey);
-            if (data && data.teacher_id && data.created_at) {
-                const key = `${data.teacher_id}_${data.created_at}`;
+            if (data && data.teacher_id) {
+                // Create a unique key based on latest activity
+                const key = `${data.teacher_id}_${data.check_in}_${data.check_out}`;
+console.log(key);
+console.log(lastActivityKey);
 
-                if (key !== lastCheckedKey) {
-                    lastCheckedKey = key;
+                if (key !== lastActivityKey) {
+                    lastActivityKey = key;
+
+                    // Determine type
+                    const isCheckIn = data.check_out === null;
+                    const time = isCheckIn ? data.check_in : data.check_out;
 
                     Swal.fire({
                         icon: 'success',
-                        title: `Teacher ${data.teacher_id} recorded!`,
-                        text: `Time: ${data.created_at}`,
+                        title: isCheckIn
+                            ? `Teacher ${data.name} checked in!`
+                            : `Teacher ${data.name} checked out!`,
+                        text: `Time: ${time}`,
                         toast: true,
                         position: 'top-end',
                         timer: 3000,
-                        showConfirmButton: false
+                        showConfirmButton: false,
+                        background: isCheckIn ? '#2ecc70ff' : '#7a6506ff', // green for in, red for out
+                        color: '#fff'
                     });
                 }
             }
