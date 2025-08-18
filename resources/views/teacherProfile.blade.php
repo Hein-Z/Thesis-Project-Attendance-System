@@ -229,7 +229,16 @@ body.dark-theme #particlesCanvas {
 #weeklyChart {
     background: transparent !important;
 }
+#teachersTable tbody tr {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
 
+#teachersTable tbody tr:hover {
+  transform: scale(1.02); /* pop out slightly */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  z-index: 5;
+  position: relative; /* ensures shadow overlays */
+}
     </style>
 </head>
 <body>
@@ -568,8 +577,8 @@ const myChart = new Chart(ctx, {
                 },
                 backgroundColor: 'transparent', // ADD THIS LINE
 
-                titleColor: '#fff',
-                bodyColor: '#fff',
+                titleColor: '#000000ff',
+                bodyColor: '#566481ff',
                 bodyFont: { weight: '600' },
                 padding: 12
             },

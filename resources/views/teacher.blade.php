@@ -11,12 +11,150 @@
     <script src="{{ asset('js/jquery.js') }}"></script>
 
     <script src="{{ asset('js/table.js') }}"></script>
+    <style>
+        /* Add this to your CSS */
+.fade-in {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; background-color: #fffae6; } /* light yellow flash */
+  to   { opacity: 1; }
+}
+
+#teachersTable tbody tr {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+#teachersTable tbody tr:hover {
+  transform: scale(1.02); /* pop out slightly */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  z-index: 5;
+  position: relative; /* ensures shadow overlays */
+}
+    </style>
       <!-- <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script> -->
 <!-- Load SweetAlert2 -->
 <script src="{{ asset('js/sweetalert.js') }}"></script>
 
 <!-- Load your notification script -->
-<script src="{{ asset('js/noti.js') }}"></script>
+<script>
+  let lastActivityKey = null;
+ function convertToAMPM(time) {
+    let [hours, minutes] = time.split(':').map(Number);
+    let period = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // handle midnight (0 => 12)
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2,'0')} ${period}`;
+}
+
+function fetchAttendance(init = false) {
+    fetch('/latest-teacher-attendance')
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+            if (data && data.teacher_id) {
+                const key = `${data.teacher_id}_${data.check_in}_${data.check_out}`;
+
+                // First run → just set the key, skip notification
+                if (init) {
+                    lastActivityKey = key;
+                    return;
+                }
+
+                if (key !== lastActivityKey) {
+                    lastActivityKey = key;
+
+                    const isCheckIn = data.check_out === null;
+                    const time = isCheckIn ? data.check_in : data.check_out;
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: isCheckIn
+                            ? `Teacher ${data.name} checked in!`
+                            : `Teacher ${data.name} checked out!`,
+                        text: `Time: ${convertToAMPM(time)}`,
+                        toast: true,
+                        position: 'top-end',
+                        timer: 3000,
+                        showConfirmButton: false,
+                        background: isCheckIn ? '#2ecc70ff' : '#7a6506ff',
+                        color: '#fff'
+                    });
+
+                    updateTeacherRow(data);
+                }
+            }
+        })
+        .catch(err => console.error('Error fetching attendance:', err));
+}
+
+// ✅ First fetch: only initialize, no notification
+fetchAttendance(true);
+
+// ✅ Polling: normal mode
+setInterval(fetchAttendance, 5000);
+function formatDay(dateStr) {
+    if (!dateStr) return "-";
+    let d = new Date(dateStr);
+    return d.toLocaleDateString("en-US", { weekday: 'long' });
+}
+
+function updateTeacherRow(data) {
+    let tbody = document.querySelector("#teachersTable tbody");
+
+    
+    let rowStyle = "";
+    if (data.checkout_type === "auto") {
+        rowStyle = "background-color: #e6363649; color: black;";
+    } else if (data.checkout_type === "In Class") {
+        rowStyle = "background-color: #1669e67a; color: black;";
+    } else if (data.checkout_type === "changed by admin") {
+        rowStyle = "background-color: #2dc6da57; color: black;";
+    }
+
+    // Build row HTML
+    let newRowHtml = `
+        <td><a href="/teachers/${data.teacher_id}/profile">${data.teacher_id}</a></td>
+        <td><a href="/teachers/${data.teacher_id}/profile">${data.name || "-"}</a></td>
+        <td>${data.subject || "-"}</td>
+       <td>${formatDay(data.created_at)}</td>
+        <td>${convertToAMPM(data.check_in) || "-"}</td>
+        <td>${convertToAMPM(data.check_out) || "-"}</td>
+        <td>${data.checkout_type}</td>
+        <td>${new Date().toISOString().split("T")[0]}</td>
+        <td class="actions-cell">
+            <div class="actions">
+                <a href="/teachers/${data.id}/edit" class="edit-btn" title="Edit">✏️</a>
+                <button type="button" class="delete-btn" data-id="${data.id}" title="Delete">🗑️</button>
+            </div>
+        </td>
+    `;
+
+    // Get the first row
+    let firstRow = tbody.rows[0];
+
+    if (firstRow && firstRow.cells[0].innerText.trim() == data.teacher_id) {
+        // Update existing row
+        firstRow.innerHTML = newRowHtml;
+        firstRow.setAttribute("style", rowStyle);
+
+        // Trigger fade animation
+        firstRow.classList.remove("fade-in");
+        void firstRow.offsetWidth; // reflow hack to restart animation
+        firstRow.classList.add("fade-in");
+    } else {
+        // Insert new row at top
+        let newRow = tbody.insertRow(0);
+        newRow.innerHTML = newRowHtml;
+        newRow.setAttribute("style", rowStyle);
+
+        // Trigger fade animation
+        newRow.classList.add("fade-in");
+    }
+}
+
+</script>
 
 
     <!-- <script src="{{ asset('js/echo.js') }}"></script> -->

@@ -117,6 +117,16 @@
             color: #b00020;
             font-weight: 600;
         }
+        #teachersTable tbody tr {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+#teachersTable tbody tr:hover {
+  transform: scale(1.02); /* pop out slightly */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  z-index: 5;
+  position: relative; /* ensures shadow overlays */
+}
     </style>
 </head>
 <body>

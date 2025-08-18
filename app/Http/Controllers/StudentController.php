@@ -6,6 +6,7 @@ use App\Models\StudentID;
 
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Carbon\Carbon;
 class StudentController extends Controller
 {
     public function show(): View
@@ -25,4 +26,19 @@ class StudentController extends Controller
 
         return view('studentProfile', compact('student'));
     }
+    public function latest()
+{
+    $today = Carbon::now()->toDateString();
+
+    $student = Student::whereDate('updated_at', $today)->where('status','Present')->with('student_info')->with('teacher_info')
+        ->orderBy('updated_at', 'desc')
+        ->first();
+
+       if ($student) {
+        return response()->json([
+            "student"=>$student
+        ]);
+    }
+    return response()->json(null);
+}
 }

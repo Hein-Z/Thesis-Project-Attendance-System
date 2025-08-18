@@ -39,6 +39,16 @@
         .filters input, .filters select, .filters button { padding: 5px 8px; border-radius: 5px; border: 1px solid #c8e6cc; outline: none; }
         #clearFilters { background-color: #28a745; color: white; font-weight: 600; cursor: pointer; border: none; transition: background 0.2s ease; }
         #clearFilters:hover { background-color: #218838; }
+        #teachersTable tbody tr {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+#teachersTable tbody tr:hover {
+  transform: scale(1.02); /* pop out slightly */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  z-index: 5;
+  position: relative; /* ensures shadow overlays */
+}
     </style>
 </head>
 <body>
