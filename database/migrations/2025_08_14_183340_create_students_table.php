@@ -18,7 +18,7 @@ return new class extends Migration
     // $table->string('subject');
     // $table->time('class_start');
     // $table->time('class_end');
-    $table->enum('status', ['Present', 'Absent'])->default('Absent');
+    $table->enum('status', ['Present', 'Absent','Late'])->default('Absent');
     $table->date('date');
     $table->timestamps();
     $table->time('check_in')->nullable();

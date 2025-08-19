@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{asset('css/bootstrap.css')}}">
 <!-- Load SweetAlert2 -->
 <script src="{{ asset('js/sweetalert.js') }}"></script>
+<script src="{{ asset('js/student-noti.js') }}"></script>
 
 <!-- Load your notification script -->
 <script src="{{ asset('js/noti.js') }}"></script>

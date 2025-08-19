@@ -31,13 +31,13 @@ class StudentAttendanceController extends Controller
             ->whereDate('date', $today)
             ->first();
 
-        if ($already) {
+        if ($already ) {
             DB::table('students')
             ->where('id', $already->id)
             ->update([
                 'status'     => 'Present',
                 'check_in'   => Carbon::now('Asia/Yangon'),
-                'updated_at' => now('Asia/Yangon'),
+                'updated_at' => Carbon::now(),
             ]);
             return response()->json(['message' => "Attendance updated for student {$student_id}"]);
         }

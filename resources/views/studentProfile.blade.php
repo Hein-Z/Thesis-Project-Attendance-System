@@ -10,6 +10,7 @@
     <script src="{{ asset('js/chart.js') }}"></script>
 <!-- Load SweetAlert2 -->
 <script src="{{ asset('js/sweetalert.js') }}"></script>
+<script src="{{ asset('js/student-noti.js') }}"></script>
 
 <!-- Load your notification script -->
 <script src="{{ asset('js/noti.js') }}"></script>
@@ -32,18 +33,20 @@
         table.dataTable tbody tr:nth-child(even) { background-color: #f0fff4; }
         .In { color: #1e7e34; font-weight: 600; }
         .Out{ color: blue; font-weight: 600; }
-        .Absent { color: #b00020; font-weight: 600; }
+        .Absent { color:  #b00020; font-weight: 600; }
+        .Present { color:  #28a745; font-weight: 600; }
+        .Late { color:  #ff7300ff; font-weight: 600; }
         .filters { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; background-color: #e6f5ea; border: 1px solid #c8e6cc; border-radius: 10px; padding: 12px; box-shadow: 0 2px 5px rgba(0, 100, 0, 0.1); margin-bottom: 20px; }
         .toolbar { display: flex; align-items: center; gap: 6px; }
         .toolbar label { font-weight: 600; color: #1e7e34; }
         .filters input, .filters select, .filters button { padding: 5px 8px; border-radius: 5px; border: 1px solid #c8e6cc; outline: none; }
         #clearFilters { background-color: #28a745; color: white; font-weight: 600; cursor: pointer; border: none; transition: background 0.2s ease; }
         #clearFilters:hover { background-color: #218838; }
-        #teachersTable tbody tr {
+        #studentsTable tbody tr {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-#teachersTable tbody tr:hover {
+#studentsTable tbody tr:hover {
   transform: scale(1.02); /* pop out slightly */
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
   z-index: 5;
@@ -56,7 +59,7 @@
     <h2>{{$student->name}}'s Attendance Profile</h2>
 @php
     $presentCount = $student->attendances->where('status','Present')->count();
-    $inClassCount = $student->attendances->where('status','In Class')->count();
+    $inClassCount = $student->attendances->where('status','Late')->count();
     $absentCount  = $student->attendances->where('status','Absent')->count();
     $totalCount   = $presentCount + $inClassCount + $absentCount;
 
@@ -89,8 +92,8 @@
         <strong>Present</strong>
         <p id="present" data-count="{{ $presentCount }}" data-percent="{{ $presentPercent }}">0 (0%)</p>
     </div>
-    <div style="text-align: center; color: #007bff;">
-        <strong>In Class</strong>
+    <div style="text-align: center; color: #ff7300ff;">
+        <strong>Late</strong>
         <p id="inClass" data-count="{{ $inClassCount }}" data-percent="{{ $inClassPercent }}">0 (0%)</p>
     </div>
     <div style="text-align: center; color: #b00020;">
@@ -140,15 +143,12 @@
                    
                     
                     <td>{{ $att->teacher_info->name }}-{{ $att->teacher_info->subject }}</td>
-                    
-                    <td>{{ \Carbon\Carbon::parse($att->check_in)->format('h:i A')?? '-' }}</td>
-                    
-                    
+                    <td>{{ $att->check_in ? \Carbon\Carbon::parse($student->check_in)->format('h:i A'): '-' }}</td>
                     <td class="{{ $att->status }}">
                         {{ $att->status }}
                     </td>
                     <td data-order="{{ $att->date }} {{ $att->check_in }}">
-    {{ $att->date }} {{ \Carbon\Carbon::parse($att->check_in)->format('h:i A') }}
+    {{ $att->date }} 
 </td>
                 </tr>
             @endforeach
@@ -196,10 +196,10 @@
 var attendanceChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
-        labels: ['Present', 'In Class', 'Absent'],
+        labels: ['Present', 'Late', 'Absent'],
         datasets: [{
             data: [{{ $presentCount }}, {{ $inClassCount }}, {{ $absentCount }}],
-            backgroundColor: ['#28a745', '#007bff', '#b00020'],
+            backgroundColor: ['#28a745', '#ff7300ff', '#b00020'],
             hoverOffset: 15
         }]
     },

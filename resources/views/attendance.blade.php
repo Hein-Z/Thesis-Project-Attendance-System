@@ -11,6 +11,7 @@
 <script src="{{ asset('js/table.js') }}"></script>
 <!-- Load SweetAlert2 -->
 <script src="{{ asset('js/sweetalert.js') }}"></script>
+<script src="{{ asset('js/student-noti.js') }}"></script>
 
 <!-- Load your notification script -->
 <script src="{{ asset('js/noti.js') }}"></script>

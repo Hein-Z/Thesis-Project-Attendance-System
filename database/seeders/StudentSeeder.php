@@ -15,12 +15,82 @@ class StudentSeeder extends Seeder
      */
     public function run(): void
     {
-        // Set Myanmar timezone
-        $today = Carbon::now('Asia/Yangon')->toDateString();
+        $students = [];
+        for ($i = 1; $i <= 17; $i++) {
+            $students[] = 'S' . str_pad($i, 3, '0', STR_PAD_LEFT);
+        }
 
-       
+        $teachers = ['T001','T002','T003','T004'];
 
-            
-    
+        $startDate = Carbon::create(2025, 7, 1, 0, 0, 0, 'Asia/Yangon');
+        $endDate   = Carbon::create(2025, 8, 19, 0, 0, 0, 'Asia/Yangon');
+
+        $date = $startDate->copy();
+
+        while ($date->lte($endDate)) {
+            // Skip weekends
+            if (!in_array($date->dayOfWeekIso, [6, 7])) {
+
+                foreach ($teachers as $teacher_id) {
+                    // Get teacher attendance for this day
+                    $teacherAttendance = DB::table('teachers')
+                        ->where('teacher_id', $teacher_id)
+                        ->whereDate('check_in', $date->toDateString())
+                        ->first();
+
+                    $classStart = $teacherAttendance && $teacherAttendance->check_in
+                        ? Carbon::parse($teacherAttendance->check_in, 'Asia/Yangon')
+                        : Carbon::createFromTime(8 + array_search($teacher_id, $teachers), 0, 0, 'Asia/Yangon'); // fallback
+
+                    $classEnd = $teacherAttendance && $teacherAttendance->check_out
+                        ? Carbon::parse($teacherAttendance->check_out, 'Asia/Yangon')
+                        : $classStart->copy()->addHour();
+
+                    foreach ($students as $student_id) {
+                        // 80% chance present, 20% absent
+                        $isPresent = rand(1, 100) <= 80;
+
+                        $status  = $isPresent ? 'Present' : 'Absent';
+                        $checkIn = null;
+
+                        if ($isPresent) {
+                            $durationMinutes = $classEnd->diffInMinutes($classStart);
+
+                            // Random late
+                            $isLateStudent = rand(1, 100) <= 30;
+
+                            if ($isLateStudent) {
+                                $minMinute = 10; // minimum 10 mins late
+                                $maxMinute = $durationMinutes - 1;
+                            } else {
+                                $minMinute = 0;
+                                $maxMinute = max(9, intval($durationMinutes * 2 / 3)); // on time within first 2/3
+                            }
+
+                            $offset = rand($minMinute, $maxMinute);
+                            $checkIn = $classStart->copy()->addMinutes($offset);
+
+                            // Update status if late 10+ minutes
+                            if ($offset >= 10) {
+                                $status = 'Late';
+                            }
+                        }
+
+                        DB::table('students')->insert([
+                            'student_id' => $student_id,
+                            'teacher_id' => $teacher_id,
+                            'status'     => $status,
+                            'date'       => $date->toDateString(),
+                            'check_in'   => $checkIn ? $checkIn->format('H:i:s') : null,
+                            'created_at' => now('Asia/Yangon'),
+                            'updated_at' => now('Asia/Yangon'),
+                        ]);
+                    }
+
+                }
+            }
+
+            $date->addDay();
+        }
     }
 }

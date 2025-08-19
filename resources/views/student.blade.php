@@ -15,7 +15,111 @@
 
 <!-- Load your notification script -->
 <script src="{{ asset('js/noti.js') }}"></script>
+<!-- <script src="{{ asset('js/student-noti.js') }}"></script> -->
+<script>
+      let studentLastActivityKey = null;
+let lastStudentID=null;
 
+function convertToAMPM(time) {
+    let [hours, minutes] = time.split(':').map(Number);
+    let period = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // handle midnight (0 => 12)
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2,'0')} ${period}`;
+}
+
+function fetchStudentAttendance(init = false) {
+    fetch('/latest-student-attendance')
+        .then(res => res.json())
+        .then(data => {
+            console.log(data)
+            if (data && data.student.student_id) {
+                const ID_key=`${data.student.student_id}_${data.student.created_at}`;
+                const key_s = `${data.student.student_id}_${data.student.check_in}`;
+
+                // First run → just set the key, skip notification
+                if (init) {
+                    studentLastActivityKey = key_s;
+                   lastStudentID= ID_key;
+                    return;
+                }
+
+if(lastStudentID==ID_key){
+    var message=`Student ${data.student.student_info.name} checked in updated!`;
+}else{
+    var message=`Student ${data.student.student_info.name} checked in!`;
+
+}
+
+                if (key_s !== studentLastActivityKey) {
+                    console.log(lastStudentID);
+                     console.log(ID_key);
+                    studentLastActivityKey = key_s;
+                    const time =  data.student.check_in ;
+
+                    Swal.fire({
+                        icon: 'success',
+                            toast: true,
+
+                        title: 
+                             message,
+                        text: `Time: ${convertToAMPM(time)}`,
+                        toast: true,
+                        position: 'top-end',
+                        timer: 7000,
+                        showConfirmButton: false,
+                        background:  lastStudentID==ID_key?'#ffd000ff': '#5187acff',
+                        color: lastStudentID==ID_key?'#000000ff': '#ffffffff'
+                    });
+
+                    updateStudentRow(data);
+                }
+                   lastStudentID= ID_key;
+
+            }
+        })
+        .catch(err => console.error('Error fetching attendance:', err));
+}
+
+// ✅ First fetch: only initialize, no notification
+fetchStudentAttendance(true);
+
+// ✅ Polling: normal mode
+setInterval(fetchStudentAttendance, 5000);
+
+
+function updateStudentRow(data) {
+    let tbody = document.querySelector("#studentsTable tbody");
+
+    // Build row HTML
+    let newRowHtml = `
+                    <td><a href="/students/${data.student.student_id }/profile">${ data.student.student_id }</a></td>
+                    <td><a href="/students/${data.student.student_id }/profile">${data.student.student_info.name }</a></td>
+                    
+                    <td>${data.student.teacher_info.name }-${data.student.teacher_info.subject }</td>
+                    
+                    <td>${ convertToAMPM(data.student.check_in)?? '-' }</td>
+                    
+                    
+                    <td class="${ data.student.status }">
+                        ${ data.student.status }
+                    </td>
+                    <td data-order="${data.student.date } ${data.student.check_in}">
+                        ${ data.student.date  }
+                    </td>
+    `;
+
+    // Get the first row
+    let firstRow = tbody.rows[0];
+
+    
+        firstRow.innerHTML = newRowHtml;
+        firstRow.classList.remove("fade-in");
+        void firstRow.offsetWidth; // reflow hack to restart animation
+        firstRow.classList.add("fade-in");
+}
+
+</script>
     <!-- <script src="{{ asset('js/echo.js') }}"></script> -->
 
     <style>
@@ -103,6 +207,19 @@
             background-color: #f0fff4;
         }
 
+        
+table.dataTable tbody tr:hover {
+    background-color: #e6f5ea;
+}
+
+.bg_blue{
+background-color: #3aa6d1a6;
+}
+
+.bg_red{
+background-color: #e6363691;
+
+}
         /* Status colors */
         .In {
             color: #1e7e34;
@@ -113,20 +230,29 @@
             color: blue;
             font-weight: 600;
         }
-        .Absent {
-            color: #b00020;
-            font-weight: 600;
-        }
-        #teachersTable tbody tr {
+         .Absent { color:  #b00020; font-weight: 600; }
+        .Present { color:  #28a745; font-weight: 600; }
+        .Late { color:  #ff7300ff; font-weight: 600; }
+        #studentsTable tbody tr {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-#teachersTable tbody tr:hover {
+#studentsTable tbody tr:hover {
   transform: scale(1.02); /* pop out slightly */
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
   z-index: 5;
   position: relative; /* ensures shadow overlays */
 }
+
+.fade-in {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; background-color: #fffae6; } /* light yellow flash */
+  to   { opacity: 1; }
+}
+
     </style>
 </head>
 <body>
@@ -177,7 +303,7 @@
                     
                     <td>{{ $student->teacher_info->name }}-{{ $student->teacher_info->subject }}</td>
                     
-                    <td>{{ \Carbon\Carbon::parse($student->check_in)->format('h:i A')?? '-' }}</td>
+                    <td>{{ $student->check_in ? \Carbon\Carbon::parse($student->check_in)->format('h:i A'): '-' }}</td>
                     
                     
                     <td class="{{ $student->status }}">
@@ -230,6 +356,9 @@
 
      
     });
+
+    
+
     </script>
 
 </body>

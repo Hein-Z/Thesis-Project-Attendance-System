@@ -36,6 +36,7 @@
       <!-- <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script> -->
 <!-- Load SweetAlert2 -->
 <script src="{{ asset('js/sweetalert.js') }}"></script>
+<script src="{{ asset('js/student-noti.js') }}"></script>
 
 <!-- Load your notification script -->
 <script>
@@ -69,6 +70,8 @@ function fetchAttendance(init = false) {
                     const time = isCheckIn ? data.check_in : data.check_out;
 
                     Swal.fire({
+                            toast: true,
+
                         icon: 'success',
                         title: isCheckIn
                             ? `Teacher ${data.name} checked in!`
@@ -76,7 +79,7 @@ function fetchAttendance(init = false) {
                         text: `Time: ${convertToAMPM(time)}`,
                         toast: true,
                         position: 'top-end',
-                        timer: 3000,
+                        timer: 7000,
                         showConfirmButton: false,
                         background: isCheckIn ? '#2ecc70ff' : '#7a6506ff',
                         color: '#fff'
@@ -326,6 +329,11 @@ background-color: #3aa6d1a6;
 background-color: #e6363691;
 
 }
+
+.bold {
+  font-weight: bold;
+}
+
     </style>
 </head>
 <body>
@@ -384,13 +392,9 @@ background-color: #e6363691;
         </thead>
         <tbody>
             @foreach ($teachers as $teacher)
-                <tr
-                  @if($teacher->checkout_type == 'auto') 
-        style="background-color: #e6363649; color: black;" 
-    @elseif($teacher->checkout_type == 'In Class') 
-        style="background-color: #1669e67a; color: black;" 
-         @elseif($teacher->checkout_type == 'changed by admin') 
-        style="background-color: #2dc6da57; color: black;" 
+                <tr 
+                     @if($teacher->checkout_type == 'In Class') 
+                     style="background-color: #1669e67a; color: black;"
     @endif 
                 >
                     <td><a href="{{ route('teachers.profile', $teacher->teacher_id) }}">{{ $teacher->teacher_id }}</a></td>
@@ -405,7 +409,13 @@ background-color: #e6363691;
                             -
                         @endif
                     </td>
-                    <td>
+                    <td 
+                        @if($teacher->checkout_type == 'auto') 
+        style="color: #c01e1eff;"  class="bold"
+         @elseif($teacher->checkout_type == 'manual') 
+        style="color: #087e8dff;"  class="bold"
+        @endif
+                    >
                         {{ $teacher->checkout_type }}
                     </td>
                     <td data-order="{{ \Carbon\Carbon::parse($teacher->check_in)->format('Y-m-d') }}">

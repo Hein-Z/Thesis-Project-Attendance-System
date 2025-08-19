@@ -13,9 +13,12 @@
     <!-- @vite('resources/js/app.js') -->
     <!-- <script src="{{ asset('js/echo.js') }}"></script> -->
 <!-- Load SweetAlert2 -->
+ 
 <script src="{{ asset('js/sweetalert.js') }}"></script>
 
 <!-- Load your notification script -->
+<script src="{{ asset('js/student-noti.js') }}"></script>
+
 <script src="{{ asset('js/noti.js') }}"></script>
     <style>
         .manual { background-color: #ffffffff !important; }
@@ -229,21 +232,24 @@ body.dark-theme #particlesCanvas {
 #weeklyChart {
     background: transparent !important;
 }
-#teachersTable tbody tr {
+#attendanceTable tbody tr {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-#teachersTable tbody tr:hover {
+#attendanceTable tbody tr:hover {
   transform: scale(1.02); /* pop out slightly */
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
   z-index: 5;
   position: relative; /* ensures shadow overlays */
 }
+
+.bold {
+  font-weight: bold;
+}
     </style>
 </head>
 <body>
-<div class="container mt-5">
-    <h2>Teacher's Attendance Profile: {{ $teacher->name }}</h2>
+
 @php
     $totalMinutes = $attendances->sum(function($t){
         if($t->check_in && $t->check_out){
@@ -307,13 +313,9 @@ body.dark-theme #particlesCanvas {
         </thead>
         <tbody>
             @foreach($attendances as $att)
-            <tr 
+            <tr  
                @if($att->checkout_type == 'auto') 
-        style="background-color: #e6363649; color: black;" 
-    @elseif($att->checkout_type == 'In Class') 
-        style="background-color: #1669e67a; color: black;" 
-         @elseif($att->checkout_type == 'changed by admin') 
-        style="background-color: #2dc6da57; color: black;" 
+        style="color: #c01e1eff;" 
     @endif 
             >
                 <td class="hidden">{{ $att->check_in }}</td>
@@ -332,7 +334,13 @@ body.dark-theme #particlesCanvas {
     }
 @endphp
 <td>{{ $durationText }}</td>
-                <td>{{ $att->checkout_type ?? '-' }}</td>
+                <td
+                   @if($att->checkout_type == 'auto') 
+        style="color: #c01e1eff;"  class="bold"
+         @elseif($att->checkout_type == 'manual') 
+        style="color: #087e8dff;"  class="bold"
+        @endif
+                >{{ $att->checkout_type ?? '-' }}</td>
                  <td class="actions-cell">
     <div class="actions">
         <a href="{{ route('teachers.edit', $att->id) }}" data-id="{{ $att->id }}" 

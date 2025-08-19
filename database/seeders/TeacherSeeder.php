@@ -9,41 +9,62 @@ use Carbon\Carbon;
 
 class TeacherSeeder extends Seeder
 {
-    public function run(): void
-     {
-       $teachers = ['T001','T002','T003','T004'];
+     public function run(): void
+    {
+        $teachers = [
+            'T001' => '08:00', // 8am slot
+            'T002' => '09:00', // 9am slot
+            'T003' => '10:00', // 10am slot
+            'T004' => '11:00', // 11am slot
+        ];
 
         $checkoutTypes = ['manual', 'auto', 'changed by admin'];
 
-        $startDate = Carbon::create(2025, 7, 25); // Start seeding from 25 July 2025
-        $endDate   = Carbon::create(2025, 8, 16); // Up to 16 August 2025 (not including 17th)
+        // Use Myanmar timezone
+        $startDate = Carbon::create(2025, 7, 1, 0, 0, 0, 'Asia/Yangon');
+        $endDate   = Carbon::create(2025, 8, 19, 23, 59, 59, 'Asia/Yangon');
 
-        foreach ($teachers as $teacher_id) {
-            $date = $startDate->copy();
+        $date = $startDate->copy();
 
-            while ($date->lte($endDate)) {
-                // Random number of sessions per day (1-3)
-                $sessions = rand(1, 3);
+        while ($date->lte($endDate)) {
+            // Skip Saturday(6) and Sunday(7) based on ISO week
+            if (!in_array($date->dayOfWeekIso, [6, 7])) {
+                foreach ($teachers as $teacher_id => $slotTime) {
+                    $slotStart = Carbon::parse(
+                        $date->toDateString() . ' ' . $slotTime,
+                        'Asia/Yangon'
+                    );
 
-                for ($i = 0; $i < $sessions; $i++) {
-                    $checkIn = $date->copy()->addHours(rand(7, 15))->addMinutes(rand(0, 59));
-                    $durationMinutes = rand(20, 120);
-                    $checkOut = $checkIn->copy()->addMinutes($durationMinutes);
+                    // Random check-in delay (0–10 mins late)
+                    $checkIn = $slotStart->copy()->addMinutes(rand(0, 10));
+
+                    // Random checkout type
                     $checkoutType = $checkoutTypes[array_rand($checkoutTypes)];
+
+                    if ($checkoutType === 'auto') {
+                        $checkOut = $checkIn->copy()->addMinutes(30);
+                    } else {
+                        $checkOut = $checkIn->copy()->addMinutes(rand(30, 59));
+                    }
+
+                    // Ensure checkout never goes past 12:00
+                    $latest = $date->copy()->setTime(11, 59, 59);
+                    if ($checkOut->gt($latest)) {
+                        $checkOut = $latest->copy();
+                    }
 
                     DB::table('teachers')->insert([
                         'teacher_id'    => $teacher_id,
-                        'check_in'      => $checkIn,
-                        'check_out'     => $checkOut,
+                        'check_in'      => $checkIn->toDateTimeString(),
+                        'check_out'     => $checkOut->toDateTimeString(),
                         'checkout_type' => $checkoutType,
-                        'created_at'    => now(),
-                        'updated_at'    => now(),
+                        'created_at'    => now('Asia/Yangon'),
+                        'updated_at'    => now('Asia/Yangon'),
                     ]);
                 }
-
-                $date->addDay();
             }
+
+            $date->addDay();
         }
     }
-    
 }

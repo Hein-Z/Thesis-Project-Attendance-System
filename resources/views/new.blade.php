@@ -9,6 +9,8 @@
 
 <!-- Load your notification script -->
 <script src="{{ asset('js/noti.js') }}"></script>
+<script src="{{ asset('js/student-noti.js') }}"></script>
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
