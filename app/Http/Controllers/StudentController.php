@@ -26,6 +26,35 @@ class StudentController extends Controller
 
         return view('studentProfile', compact('student'));
     }
+
+public function rollCallChart(Request $request)
+{
+    $month = $request->input('month', Carbon::now()->format('Y-m'));
+    $teacherId = $request->input('teacher_id'); // filter by teacher
+
+    $startDate = Carbon::parse($month . '-01');
+    $endDate   = $startDate->copy()->endOfMonth();
+
+    $query = Student::whereBetween('date', [$startDate, $endDate]);
+
+    if ($teacherId) {
+        $query->where('teacher_id', $teacherId);
+    }
+
+    $attendance = $query->selectRaw('
+        DATE(date) as day,
+        SUM(status = "Present") as present,
+        SUM(status = "Absent") as absent,
+        SUM(status = "Late") as late
+    ')
+    ->groupBy('day')
+    ->orderBy('day')
+    ->get();
+
+    return response()->json($attendance);
+}
+
+
     public function latest()
 {
     $today = Carbon::now()->toDateString();

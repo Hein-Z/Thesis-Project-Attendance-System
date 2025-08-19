@@ -57,3 +57,4 @@ Route::get('/{student_id}/student', [StudentAttendanceController::class, 'markAt
 
 
 Route::get('/students/{id}', [StudentController::class, 'profile'])->name('students.profile');
+Route::get('/roll-call-chart', [StudentController::class, 'rollCallChart']);

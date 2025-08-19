@@ -246,9 +246,81 @@ body.dark-theme #particlesCanvas {
 .bold {
   font-weight: bold;
 }
+
+/* Center avatar in parent */
+.teacher-avatar {
+    position: relative;
+    margin: 0 auto; /* centers inside parent */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 200px;
+    height: 200px;
+    border-radius: 15px; /* rounded square */
+    overflow: visible;
+    background: linear-gradient(135deg, #a8e6cf, #56ab2f);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    animation: bounce 2s infinite alternate;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Teacher Image */
+.teacher-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Hover effect */
+.teacher-avatar:hover {
+    transform: scale(1.1) rotate(-3deg);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+}
+
+/* Tooltip (shows $teacher->name) */
+.teacher-avatar::after {
+    content: attr(data-name);
+    position: absolute;
+    top: -35px; /* tooltip ABOVE avatar */
+    left: 50%;
+     bottom: 100%; /* above avatar */
+    transform: translateX(-50%);
+    background: #2e7d32;
+    color: #fff;
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Show tooltip on hover */
+.teacher-avatar:hover::after {
+    top: -45px;
+    opacity: 1;
+}
+
+/* Bounce animation */
+@keyframes bounce {
+    0%   { transform: translateY(0); }
+    50%  { transform: translateY(-5px); }
+    100% { transform: translateY(0); }
+}
     </style>
 </head>
 <body>
+<div class="container mt-5">
+    <h2>Teacher's Attendance Profile: {{ $teacher->name }}</h2>
+ <!-- Teacher Avatar -->
+<div class="teacher-avatar" data-name="{{ $teacher->name }}">
+    <img src="{{ asset('images/teachers/'.$teacher->id.'.jpg') }}" alt="{{ $teacher->name }}">
+</div>
+
 
 @php
     $totalMinutes = $attendances->sum(function($t){

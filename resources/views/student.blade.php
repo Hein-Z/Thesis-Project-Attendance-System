@@ -290,7 +290,7 @@ background-color: #e6363691;
                 <th>Student ID</th>
                 <th>Name</th>
                 <th>Class</th>
-                <th>Time In</th>
+                <th>Check In</th>
                 <th>Status</th>
                 <th>Date</th>
             </tr>

@@ -69,7 +69,7 @@
 @endphp
 
 <div style="position: relative; width: 300px; height: 300px; margin: 0 auto;">
-    <img src="https://as1.ftcdn.net/v2/jpg/05/88/16/32/1000_F_588163204_lO4iwf8FNJCWEcSbtGBjwbz9EK71D2M4.jpg" 
+    <img src="{{ asset('images/students/'.$student->id.'.jpg') }}" 
          alt="Profile" 
          style="
              position: absolute;
@@ -105,6 +105,7 @@
         <p id="total" data-count="{{ $totalCount }}">0</p>
     </div>
 </div>
+
     <!-- Filter Bar -->
     <div class="filters">
         <div class="toolbar">
@@ -131,7 +132,7 @@
         <thead>
             <tr>
                 <th>Class</th>
-                <th>Time In</th>
+                <th>Check In</th>
                 <th>Status</th>
                 <th>Date</th>
             </tr>
@@ -143,7 +144,8 @@
                    
                     
                     <td>{{ $att->teacher_info->name }}-{{ $att->teacher_info->subject }}</td>
-                    <td>{{ $att->check_in ? \Carbon\Carbon::parse($student->check_in)->format('h:i A'): '-' }}</td>
+                    
+                    <td>{{ $att->check_in ? \Carbon\Carbon::parse($att->check_in)->format('h:i A'): '-' }}</td>
                     <td class="{{ $att->status }}">
                         {{ $att->status }}
                     </td>
@@ -265,6 +267,7 @@ window.addEventListener('DOMContentLoaded', () => {
     animateCountWithPercent('absent');
     animateCountWithPercent('total');
 });
+
 
     </script>
 
