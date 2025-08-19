@@ -74,7 +74,8 @@ class TeacherIDController extends Controller
 //   broadcast(new TeacherCheckedIn($attendance))->toOthers();
 
         return response()->json([
-            'message' => 'Teacher checked in successfully'
+            'message' => 'Teacher checked in successfully',
+            'status'=>'In'
         ]);
     } else {
         // ✅ Teacher OUT (second scan)
@@ -104,7 +105,8 @@ class TeacherIDController extends Controller
 //   broadcast(new TeacherCheckedIn($attendance))->toOthers();
 
         return response()->json([
-            'message' => 'Teacher checked out & absentees marked'
+            'message' => 'Teacher checked out & absentees marked',
+            'status'=>'Out'
         ]);
     }
 }

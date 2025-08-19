@@ -11,6 +11,10 @@
     <script src="{{ asset('js/jquery.js') }}"></script>
 
     <script src="{{ asset('js/table.js') }}"></script>
+    <script src="{{ asset('js/student-noti.js') }}"></script>
+
+<!-- Load your notification script -->
+<!-- <script src="{{ asset('js/noti.js') }}"></script> -->
     <style>
         /* Add this to your CSS */
 .fade-in {
@@ -36,7 +40,7 @@
       <!-- <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script> -->
 <!-- Load SweetAlert2 -->
 <script src="{{ asset('js/sweetalert.js') }}"></script>
-<script src="{{ asset('js/student-noti.js') }}"></script>
+<!-- <script src="{{ asset('js/student-noti.js') }}"></script> -->
 
 <!-- Load your notification script -->
 <script>
@@ -67,14 +71,14 @@ function fetchAttendance(init = false) {
                     lastActivityKey = key;
 
                     const isCheckIn = data.check_out === null;
-                    const time = isCheckIn ? data.check_in : data.check_out;
+                    const time = isCheckIn ? data.check_in : data.check_out ;
 
                     Swal.fire({
                             toast: true,
 
                         icon: 'success',
                         title: isCheckIn
-                            ? `Teacher ${data.name} checked in!`
+                            ? `Teacher ${data.check_out} checked in!`
                             : `Teacher ${data.name} checked out!`,
                         text: `Time: ${convertToAMPM(time)}`,
                         toast: true,
@@ -122,8 +126,8 @@ function updateTeacherRow(data) {
         <td><a href="/teachers/${data.teacher_id}/profile">${data.name || "-"}</a></td>
         <td>${data.subject || "-"}</td>
        <td>${formatDay(data.created_at)}</td>
-        <td>${convertToAMPM(data.check_in) || "-"}</td>
-        <td>${convertToAMPM(data.check_out) || "-"}</td>
+        <td>${data.check_in?convertToAMPM(data.check_in) : "-"}</td>
+        <td>${data.check_out?convertToAMPM(data.check_out) : "-"}</td>
         <td>${data.checkout_type}</td>
         <td>${new Date().toISOString().split("T")[0]}</td>
         <td class="actions-cell">

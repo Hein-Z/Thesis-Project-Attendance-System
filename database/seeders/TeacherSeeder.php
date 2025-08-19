@@ -21,8 +21,8 @@ class TeacherSeeder extends Seeder
         $checkoutTypes = ['manual', 'auto', 'changed by admin'];
 
         // Use Myanmar timezone
-        $startDate = Carbon::create(2025, 7, 1, 0, 0, 0, 'Asia/Yangon');
-        $endDate   = Carbon::create(2025, 8, 19, 23, 59, 59, 'Asia/Yangon');
+        $startDate = Carbon::create(2025, 5, 1, 0, 0, 0, 'Asia/Yangon');
+        $endDate   = Carbon::create(2025, 8, 17, 23, 59, 59, 'Asia/Yangon');
 
         $date = $startDate->copy();
 
@@ -58,8 +58,8 @@ class TeacherSeeder extends Seeder
                         'check_in'      => $checkIn->toDateTimeString(),
                         'check_out'     => $checkOut->toDateTimeString(),
                         'checkout_type' => $checkoutType,
-                        'created_at'    => now('Asia/Yangon'),
-                        'updated_at'    => now('Asia/Yangon'),
+                        'created_at'    => $checkIn->toDateTimeString(),
+                        'updated_at'    => $checkOut->toDateTimeString(),
                     ]);
                 }
             }

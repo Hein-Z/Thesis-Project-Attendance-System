@@ -22,8 +22,8 @@ class StudentSeeder extends Seeder
 
         $teachers = ['T001','T002','T003','T004'];
 
-        $startDate = Carbon::create(2025, 7, 1, 0, 0, 0, 'Asia/Yangon');
-        $endDate   = Carbon::create(2025, 8, 19, 0, 0, 0, 'Asia/Yangon');
+        $startDate = Carbon::create(2025, 5, 1, 0, 0, 0, 'Asia/Yangon');
+        $endDate   = Carbon::create(2025, 8, 17, 0, 0, 0, 'Asia/Yangon');
 
         $date = $startDate->copy();
 
@@ -76,14 +76,19 @@ class StudentSeeder extends Seeder
                             }
                         }
 
+                       // Set created_at / updated_at = date + check_in time
+                        $datetime = $checkIn
+                            ? $date->format('Y-m-d') . ' ' . $checkIn->format('H:i:s')
+                            : $date->format('Y-m-d') . ' ' . $classStart->format('H:i:s'); // fallback if absent
+
                         DB::table('students')->insert([
                             'student_id' => $student_id,
                             'teacher_id' => $teacher_id,
                             'status'     => $status,
                             'date'       => $date->toDateString(),
                             'check_in'   => $checkIn ? $checkIn->format('H:i:s') : null,
-                            'created_at' => now('Asia/Yangon'),
-                            'updated_at' => now('Asia/Yangon'),
+                            'created_at' => $datetime,
+                            'updated_at' => $datetime,
                         ]);
                     }
 

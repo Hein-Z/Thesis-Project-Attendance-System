@@ -22,7 +22,9 @@ class StudentAttendanceController extends Controller
             ->first();
 
         if (!$teacher) {
-            return response()->json(['message' => 'No teacher session active'], 403);
+            return response()->json(['message' => 'No teacher session active',
+        'status'=>'No Class'
+        ], 403);
         }
 
         // Prevent duplicate check-in
@@ -39,7 +41,9 @@ class StudentAttendanceController extends Controller
                 'check_in'   => Carbon::now('Asia/Yangon'),
                 'updated_at' => Carbon::now(),
             ]);
-            return response()->json(['message' => "Attendance updated for student {$student_id}"]);
+            return response()->json(['message' => "Attendance updated for student {$student_id}",
+        'status'=>'Updated'
+        ]);
         }
 
         Student::create([
@@ -50,7 +54,9 @@ class StudentAttendanceController extends Controller
             'date'       => $today
         ]);
 
-        return response()->json(['message' => 'Student checked in successfully']);
+        return response()->json(['message' => 'Student checked in successfully',
+    'status'=>'In'
+    ]);
     }
 }
     

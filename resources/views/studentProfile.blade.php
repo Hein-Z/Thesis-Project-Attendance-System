@@ -12,9 +12,10 @@
 <script src="{{ asset('js/sweetalert.js') }}"></script>
 <script src="{{ asset('js/student-noti.js') }}"></script>
 
+
+
 <!-- Load your notification script -->
 <script src="{{ asset('js/noti.js') }}"></script>
-
     <!-- <script src="{{ asset('js/echo.js') }}"></script> -->
     
 
@@ -69,7 +70,7 @@
 @endphp
 
 <div style="position: relative; width: 300px; height: 300px; margin: 0 auto;">
-    <img src="{{ asset('images/students/'.$student->id.'.jpg') }}" 
+    <img src="{{ asset('images/students/'.$student->student_id.'.jpg') }}" 
          alt="Profile" 
          style="
              position: absolute;
