@@ -36,21 +36,28 @@ if(lastStudentID==ID_key){
                     studentLastActivityKey = key_s;
                     const time =  data.student.check_in ;
 
-                    Swal.fire({
-                        icon: 'success',
-                            toast: true,
-
-                        title: 
-                             message,
-                        text: `Time: ${convertToAMPM(time)}`,
-                        toast: true,
-                        position: 'top-end',
-                        timer: 7000,
-                        showConfirmButton: false,
-                        background:  lastStudentID==ID_key?'#ffd000ff': '#5187acff',
-                        color: lastStudentID==ID_key?'#000000ff': '#ffffffff'
-                    });
-
+                  // Student Alert
+Swal.fire({
+    icon: 'success',
+  toast: true,
+  position: 'top-end',
+  timer: 7000,
+  showConfirmButton: false,
+  background: lastStudentID==ID_key ? '#ffd000ff' : '#5187acff',
+  color: lastStudentID==ID_key ? '#000000ff' : '#ffffffff',
+  html: `
+    <div style="display: flex; align-items: center; gap: 5px;">
+      <img src="/images/students/${data.student.student_id}.jpg"
+           alt="Student Photo"
+           style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #fff;">
+      <div style="text-align:left;">
+        <h4 style="margin:0; font-size:16px; font-weight:bold;">${message}</h4>
+        <p style="margin:2px 0 0; font-size:14px;">${data.student.student_id}</p>
+        <small style="opacity:0.8;">Time: ${convertToAMPM(time)}</small>
+      </div>
+    </div>
+  `
+});
                     // updateTeacherRow(data);
                 }
                    lastStudentID= ID_key;

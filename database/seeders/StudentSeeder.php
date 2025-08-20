@@ -22,7 +22,7 @@ class StudentSeeder extends Seeder
 
         $teachers = ['T001','T002','T003','T004'];
 
-        $startDate = Carbon::create(2025, 5, 1, 0, 0, 0, 'Asia/Yangon');
+        $startDate = Carbon::create(2025, 7, 17, 0, 0, 0, 'Asia/Yangon');
         $endDate   = Carbon::create(2025, 8, 17, 0, 0, 0, 'Asia/Yangon');
 
         $date = $startDate->copy();

@@ -73,22 +73,30 @@ function fetchAttendance(init = false) {
                     const isCheckIn = data.check_out === null;
                     const time = isCheckIn ? data.check_in : data.check_out ;
 
-                    Swal.fire({
-                            toast: true,
-
-                        icon: 'success',
-                        title: isCheckIn
-                            ? `Teacher ${data.check_out} checked in!`
-                            : `Teacher ${data.name} checked out!`,
-                        text: `Time: ${convertToAMPM(time)}`,
-                        toast: true,
-                        position: 'top-end',
-                        timer: 7000,
-                        showConfirmButton: false,
-                        background: isCheckIn ? '#2ecc70ff' : '#7a6506ff',
-                        color: '#fff'
-                    });
-
+                 // Teacher Alert
+Swal.fire({
+    icon: 'success',
+  toast: true,
+  position: 'top-end',
+  timer: 7000,
+  showConfirmButton: false,
+  background: isCheckIn ? '#2ecc70ff' : '#7a6506ff',
+  color: '#fff',
+  html: `
+    <div style="display: flex; align-items: center; gap: 5px;">
+      <img src="/images/teachers/${data.teacher_id}.jpg"
+           alt="Teacher Photo"
+           style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #fff;">
+      <div style="text-align:left;">
+        <h4 style="margin:0; font-size:16px; font-weight:bold;">
+          ${isCheckIn ? '✅ Checked In' : '🚪 Checked Out'}
+        </h4>
+        <p style="margin:2px 0 0; font-size:14px;">${data.name}</p>
+        <small style="opacity:0.8;">Time: ${convertToAMPM(time)}</small>
+      </div>
+    </div>
+  `
+});
                     updateTeacherRow(data);
                 }
             }
