@@ -88,37 +88,40 @@ fetchStudentAttendance(true);
 setInterval(fetchStudentAttendance, 5000);
 
 
-function updateStudentRow(data) {
-    let tbody = document.querySelector("#studentsTable tbody");
+function updateStudentRow({ student }) {
+    let rowId = `#row-${student.student_id}`;
+    let $row = $(rowId);
 
-    // Build row HTML
-    let newRowHtml = `
-                    <td><a href="/students/${data.student.student_id }/profile">${ data.student.student_id }</a></td>
-                    <td><a href="/students/${data.student.student_id }/profile">${data.student.student_info.name }</a></td>
-                    
-                    <td>${data.student.teacher_info.name }-${data.student.teacher_info.subject }</td>
-                    
-                    <td>${ convertToAMPM(data.student.check_in)?? '-' }</td>
-                    
-                    
-                    <td class="${ data.student.status }">
-                        ${ data.student.status }
-                    </td>
-                    <td data-order="${data.student.date } ${data.student.check_in}">
-                        ${ data.student.date  }
-                    </td>
-    `;
+    // If row exists → update
+    if ($row.length) {
+        table.row($row).data([
+            `<a href="/students/${student.student_id}">${student.student_id}</a>`,
+            `<a href="/students/${student.student_id}">${student.name}</a>`,
+            `${student.teacher_name} - ${student.teacher_subject}`,
+            student.check_in ? convertToAMPM(student.check_in) : '-',
+            `<span class="${student.status}">${student.status}</span>`,
+            student.date
+        ]).draw(false);
 
-    // Get the first row
-    let firstRow = tbody.rows[0];
+        // Highlight animation
+        $row.removeClass('highlight-present highlight-absent highlight-late');
+        setTimeout(() => $row.addClass('highlight-' + student.status.toLowerCase()), 50);
+    } 
+    // Else → add new row
+    else {
+        let newRow = table.row.add([
+            `<a href="/students/${student.student_id}">${student.student_id}</a>`,
+            `<a href="/students/${student.student_id}">${student.name}</a>`,
+            `${student.teacher_name} - ${student.teacher_subject}`,
+            student.check_in ? convertToAMPM(student.check_in) : '-',
+            `<span class="${student.status}">${student.status}</span>`,
+            student.date
+        ]).draw(false).node();
 
-    
-        firstRow.innerHTML = newRowHtml;
-        firstRow.classList.remove("fade-in");
-        void firstRow.offsetWidth; // reflow hack to restart animation
-        firstRow.classList.add("fade-in");
+        $(newRow).attr('id', `row-${student.student_id}`);
+        $(newRow).addClass('highlight-' + student.status.toLowerCase());
+    }
 }
-
 </script>
     <!-- <script src="{{ asset('js/echo.js') }}"></script> -->
 
@@ -253,6 +256,27 @@ background-color: #e6363691;
   to   { opacity: 1; }
 }
 
+/* Glow animations */
+.highlight-present { animation: glow-green 1s ease-out; }
+.highlight-absent { animation: glow-red 1s ease-out; }
+.highlight-late { animation: glow-orange 1s ease-out; }
+
+@keyframes glow-green {
+  0% { background-color: #d4f8d4; }
+  50% { background-color: #b0f2b0; }
+  100% { background-color: transparent; }
+}
+@keyframes glow-red {
+  0% { background-color: #ffd6d6; }
+  50% { background-color: #ffb3b3; }
+  100% { background-color: transparent; }
+}
+@keyframes glow-orange {
+  0% { background-color: #ffeacc; }
+  50% { background-color: #ffd699; }
+  100% { background-color: transparent; }
+}
+
     </style>
 </head>
 <body>
@@ -296,24 +320,33 @@ background-color: #e6363691;
             </tr>
         </thead>
         <tbody>
-            @foreach ($students as $student)
-                <tr>
-                    <td><a href="{{ route('students.profile', $student->student_id) }}">{{ $student->student_id }}</a></td>
-                    <td><a href="{{ route('students.profile', $student->student_id) }}">{{ $student->student_info->name }}</a></td>
-                    
-                    <td>{{ $student->teacher_info->name }}-{{ $student->teacher_info->subject }}</td>
-                    
-                    <td>{{ $student->check_in ? \Carbon\Carbon::parse($student->check_in)->format('h:i A'): '-' }}</td>
-                    
-                    
-                    <td class="{{ $student->status }}">
-                        {{ $student->status }}
-                    </td>
-                    <td data-order="{{ $student->date }}">
-                        {{ $student->date  }}
-                    </td>
-                </tr>
-            @endforeach
+             @foreach ($students as $student)
+    
+                    <tr id="row-{{ $student->id }}">
+                        <td>
+                            <a href="{{ route('students.profile', $student->student_id) }}">
+                                {{ $student->student_id }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ route('students.profile', $student->student_id) }}">
+                                {{ $student->student_info->name }}
+                            </a>
+                        </td>
+                        <td>
+                            {{ $student->teacher_info->name }} - {{ $student->teacher_info->subject }}
+                        </td>
+                        <td>
+                            {{ $student->check_in ? \Carbon\Carbon::parse($student->check_in)->format('h:i A') : '-' }}
+                        </td>
+                        <td class="{{ $student->status }}">
+                            {{ $student->status }}
+                        </td>
+                        <td data-order="{{ $student->date }}{{$student->check_in}}">
+                            {{ $student->date }}
+                        </td>
+                    </tr>
+                @endforeach
         </tbody>
     </table>
 

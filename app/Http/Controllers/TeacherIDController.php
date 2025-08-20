@@ -37,8 +37,10 @@ class TeacherIDController extends Controller
             // 1-hour limit
             if ($checkInTime->diffInMinutes($now) < 1) {
                 return response()->json([
-                    'error' => 'Another teacher is already inside (less than 1 hour)'
-                ], 403);
+                    'error' => 'Another teacher is already inside (less than 1 hour)',
+                    'status'=> 'Not',
+        'time'=>Carbon::now('Asia/Yangon')->format('h:i A')
+                ]);
             } else {
         $allStudents = StudentID::pluck('student_id')->toArray();
         $presentStudents = Student::where('teacher_id', $active->teacher_id)
@@ -75,13 +77,14 @@ class TeacherIDController extends Controller
 
         return response()->json([
             'message' => 'Teacher checked in successfully',
-            'status'=>'In'
+            'status'=>'In',
+        'time'=>Carbon::now('Asia/Yangon')->format('h:i A')
         ]);
     } else {
         // ✅ Teacher OUT (second scan)
         $teacherSession->update([
             'check_out'     => $now,
-            'checkout_type' => 'manual'
+            'checkout_type' => 'manual',
         ]);
     $attendance=$teacherSession;
 //   broadcast(new TeacherCheckedIn($attendance))->toOthers();
@@ -106,7 +109,8 @@ class TeacherIDController extends Controller
 
         return response()->json([
             'message' => 'Teacher checked out & absentees marked',
-            'status'=>'Out'
+            'status'=>'Out',
+        'time'=>Carbon::now('Asia/Yangon')->format('h:i A')
         ]);
     }
 }

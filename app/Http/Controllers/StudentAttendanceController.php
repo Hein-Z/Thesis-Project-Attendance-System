@@ -23,8 +23,9 @@ class StudentAttendanceController extends Controller
 
         if (!$teacher) {
             return response()->json(['message' => 'No teacher session active',
-        'status'=>'No Class'
-        ], 403);
+        'status'=>'Not',
+        'time'=>Carbon::now('Asia/Yangon')->format('h:i A')
+        ]);
         }
 
         // Prevent duplicate check-in
@@ -42,7 +43,8 @@ class StudentAttendanceController extends Controller
                 'updated_at' => Carbon::now(),
             ]);
             return response()->json(['message' => "Attendance updated for student {$student_id}",
-        'status'=>'Updated'
+        'status'=>'In',
+        'time'=>Carbon::now('Asia/Yangon')->format('h:i A')
         ]);
         }
 
@@ -55,7 +57,8 @@ class StudentAttendanceController extends Controller
         ]);
 
         return response()->json(['message' => 'Student checked in successfully',
-    'status'=>'In'
+    'status'=>'In',
+        'time'=>Carbon::now('Asia/Yangon')->format('h:i A')
     ]);
     }
 }
