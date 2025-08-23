@@ -12,7 +12,91 @@
 
     <script src="{{ asset('js/table.js') }}"></script>
     <script src="{{ asset('js/student-noti.js') }}"></script>
+    <script>
 
+        
+    $(function () {
+
+     
+
+       var table = $('#teachersTable').DataTable({
+        order: [[7, 'desc']],
+        pageLength: 10
+    });
+
+    function buildSelect(columnIndex, $select) {
+        $select.empty().append('<option value="">All</option>');
+        var data = table.column(columnIndex).data().unique().sort();
+        data.each(function (d) {
+            var text = $('<div>').html(d).text().trim();
+            if (text) $select.append('<option value="' + text + '">' + text + '</option>');
+        });
+        $select.on('change', function () {
+            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+            table.column(columnIndex).search(val ? '^' + val + '$' : '', true, false).draw();
+        });
+    }
+
+    buildSelect(3, $('#dayPicker'));
+    buildSelect(5, $('#statusFilter'));
+    buildSelect(6, $('#checkoutTypeFilter'));
+
+    // Custom date range filter
+    $.fn.dataTable.ext.search.push(
+        function(settings, data) {
+            var start = $('#start_date').val();
+            var end = $('#end_date').val();
+            var date = data[7]; // Date column
+
+            if(start && date < start) return false;
+            if(end && date > end) return false;
+            return true;
+        }
+    );
+
+    $('#start_date, #end_date').on('change', function() {
+        table.draw();
+    });
+
+    // Keep your other filters
+    $('#subjectFilter').on('change', function () {
+        var searchValue = $(this).val();
+        if (searchValue) {
+            table.columns(1).search(searchValue.split(' - ')[0]); // Name
+            table.columns(2).search(searchValue.split(' - ')[1]); // Subject
+        } else {
+            table.columns(1).search('');
+            table.columns(2).search('');
+        }
+        table.draw();
+    });
+
+    $('#clearFilters').on('click', function () {
+        $('#start_date, #end_date, #subjectFilter, #statusFilter').val('');
+        table.columns().search('').draw();
+    });
+
+$('.delete-btn').click(function() 
+{ var teacherId = $(this).data('id'); 
+var row = $(this).closest('tr');
+ var password = prompt("Enter password to delete:"); 
+ if(password !== '12345678') 
+ { alert("Incorrect password!"); return; } 
+ if(confirm("Are you sure you want to delete this attendance?")) 
+ { $.ajax({ url: '/teachers/' + teacherId, type: 'DELETE', 
+ data: { _token: '{{ csrf_token() }}' },
+  success: function(response) { // Remove main row 
+  row.fadeOut(500, function() { $(this).remove(); }); }, 
+  error: function(xhr) { alert("Error deleting attendance."); } }); } }); 
+// EDIT (optional: open modal or prompt)
+ $('.edit-btn').click(function(e) { e.preventDefault(); // Prevent default link 
+ var teacherId = $(this).data('id'); var password = prompt("Enter password to edit:");
+  if(password !== '12345678') { alert("Incorrect password!"); return; } 
+  // Redirect to edit page 
+  window.location.href = '/teachers/' + teacherId + '/edit'; });
+
+    });
+    </script>
 <!-- Load your notification script -->
 <!-- <script src="{{ asset('js/noti.js') }}"></script> -->
     <style>
@@ -450,116 +534,7 @@ background-color: #e6363691;
         </tbody>
     </table>
 
-    <script>
 
-        
-    $(function () {
-
-     
-
-       var table = $('#teachersTable').DataTable({
-        order: [[7, 'desc']],
-        pageLength: 10
-    });
-
-    function buildSelect(columnIndex, $select) {
-        $select.empty().append('<option value="">All</option>');
-        var data = table.column(columnIndex).data().unique().sort();
-        data.each(function (d) {
-            var text = $('<div>').html(d).text().trim();
-            if (text) $select.append('<option value="' + text + '">' + text + '</option>');
-        });
-        $select.on('change', function () {
-            var val = $.fn.dataTable.util.escapeRegex($(this).val());
-            table.column(columnIndex).search(val ? '^' + val + '$' : '', true, false).draw();
-        });
-    }
-
-    buildSelect(3, $('#dayPicker'));
-    buildSelect(5, $('#statusFilter'));
-    buildSelect(6, $('#checkoutTypeFilter'));
-
-    // Custom date range filter
-    $.fn.dataTable.ext.search.push(
-        function(settings, data) {
-            var start = $('#start_date').val();
-            var end = $('#end_date').val();
-            var date = data[7]; // Date column
-
-            if(start && date < start) return false;
-            if(end && date > end) return false;
-            return true;
-        }
-    );
-
-    $('#start_date, #end_date').on('change', function() {
-        table.draw();
-    });
-
-    // Keep your other filters
-    $('#subjectFilter').on('change', function () {
-        var searchValue = $(this).val();
-        if (searchValue) {
-            table.columns(1).search(searchValue.split(' - ')[0]); // Name
-            table.columns(2).search(searchValue.split(' - ')[1]); // Subject
-        } else {
-            table.columns(1).search('');
-            table.columns(2).search('');
-        }
-        table.draw();
-    });
-
-    $('#clearFilters').on('click', function () {
-        $('#start_date, #end_date, #subjectFilter, #statusFilter').val('');
-        table.columns().search('').draw();
-    });
-
-
-    $('.delete-btn').click(function() {
-    var teacherId = $(this).data('id');
-    var row = $(this).closest('tr');
-
-    var password = prompt("Enter password to delete:");
-    if(password !== '12345678') {
-        alert("Incorrect password!");
-        return;
-    }
-
-    if(confirm("Are you sure you want to delete this attendance?")) {
-        $.ajax({
-            url: '/teachers/' + teacherId,
-            type: 'DELETE',
-            data: { _token: '{{ csrf_token() }}' },
-            success: function(response) {
-                // Remove main row
-                row.fadeOut(500, function() { $(this).remove(); });
-
-             
-            },
-            error: function(xhr) {
-                alert("Error deleting attendance.");
-            }
-        });
-    }
-});
-
-    // EDIT (optional: open modal or prompt)
-    $('.edit-btn').click(function(e) {
-        e.preventDefault(); // Prevent default link
-
-        var teacherId = $(this).data('id');
-        var password = prompt("Enter password to edit:");
-        if(password !== '12345678') {
-            alert("Incorrect password!");
-            return;
-        }
-
-        // Redirect to edit page
-        window.location.href = '/teachers/' + teacherId + '/edit';
-    });
-
-    });
-    </script>
 
 </body>
 </html>

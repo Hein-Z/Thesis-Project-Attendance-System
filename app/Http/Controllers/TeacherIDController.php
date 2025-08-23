@@ -8,10 +8,10 @@ use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\StudentID;
 use App\Events\TeacherCheckedIn;
-
+use Illuminate\Support\Facades\Log;
 class TeacherIDController extends Controller
 {
-    public function storeById($teacher_id)
+  public function storeById($teacher_id)
 {
     $now = Carbon::now('Asia/Yangon');  // Myanmar timezone
     $today = $now->toDateString();
@@ -28,57 +28,69 @@ class TeacherIDController extends Controller
         // Check if another teacher is already in the class
         $active = Teacher::whereDate('check_in', $today)
             ->whereNull('check_out')
-            ->where('teacher_id', '!=', $teacher_id) // exclude same teacher
+            ->where('teacher_id', '!=', $teacher_id)
             ->first();
 
         if ($active) {
-            $checkInTime = Carbon::parse($active->check_in, 'Asia/Yangon');
-            
-            // 1-hour limit
-            if ($checkInTime->diffInMinutes($now) < 1) {
+$checkInTime = Carbon::parse($active->check_in)->timezone('Asia/Yangon');
+$now = Carbon::now('Asia/Yangon');
+
+$minutesDiff = $checkInTime->diffInMinutes($now, false);
+
+Log::info("Check-in: " . $checkInTime->format('Y-m-d H:i:s'));
+Log::info("Now: " . $now->format('Y-m-d H:i:s'));
+Log::info("Minutes difference: " . $minutesDiff);
+
+            if ($minutesDiff < 1) {
+                Log::info($minutesDiff);
+                // 🚫 Block entry if less than 1 hour
                 return response()->json([
-                    'error' => 'Another teacher is already inside (less than 1 hour)',
-                    'status'=> 'Not',
-        'time'=>Carbon::now('Asia/Yangon')->format('h:i A')
+                    'error'  => 'Another teacher is already inside (less than 1 hour)',
+                    'status' => 'Not',
+                    'time'   => $now->format('h:i A')
                 ]);
             } else {
-        $allStudents = StudentID::pluck('student_id')->toArray();
-        $presentStudents = Student::where('teacher_id', $active->teacher_id)
-        ->whereDate('date', $today)
-        ->pluck('student_id')
-        ->toArray();
+                // ✅ Auto-checkout previous teacher + mark absentees
 
-    $absentStudents = array_diff($allStudents, $presentStudents);
+                // Checkout time is *30 mins after their check_in*
+                $checkoutTime = $checkInTime->copy()->addMinutes(30);
 
-    foreach ($absentStudents as $sid) {
-        Student::create([
-            'student_id' => $sid,
-            'teacher_id' => $active->teacher_id,
-            'status'     => 'Absent',
-            'date'       => $today
-        ]);
-    }
-                // Auto checkout previous teacher after 1 hour
-               $active->update([
-                    'check_out'     => $checkInTime->copy()->addMinutes(30),
+                $active->update([
+                    'check_out'     => $checkoutTime,
                     'checkout_type' => 'auto'
                 ]);
-             
 
+                // 🔔 Mark absentees
+                $allStudents = StudentID::pluck('student_id')->toArray();
+                $presentStudents = Student::where('teacher_id', $active->teacher_id)
+                    ->whereDate('date', $today)
+                    ->pluck('student_id')
+                    ->toArray();
+
+                $absentStudents = array_diff($allStudents, $presentStudents);
+
+                foreach ($absentStudents as $sid) {
+                    Student::create([
+                        'student_id' => $sid,
+                        'teacher_id' => $active->teacher_id,
+                        'status'     => 'Absent',
+                        'date'       => $today,
+                        'check_in'   => $checkoutTime,
+                    ]);
+                }
             }
         }
 
         // Store new teacher session
-      $attendance=  Teacher::create([
+        Teacher::create([
             'teacher_id' => $teacher_id,
             'check_in'   => $now
         ]);
-//   broadcast(new TeacherCheckedIn($attendance))->toOthers();
 
         return response()->json([
             'message' => 'Teacher checked in successfully',
-            'status'=>'In',
-        'time'=>Carbon::now('Asia/Yangon')->format('h:i A')
+            'status'  => 'In',
+            'time'    => $now->format('h:i A')
         ]);
     } else {
         // ✅ Teacher OUT (second scan)
@@ -86,32 +98,41 @@ class TeacherIDController extends Controller
             'check_out'     => $now,
             'checkout_type' => 'manual',
         ]);
-    $attendance=$teacherSession;
-//   broadcast(new TeacherCheckedIn($attendance))->toOthers();
-        // Mark absentees: students who did not check in
-        $allStudents = StudentID::pluck('student_id')->toArray();
-        $presentStudents = Student::where('teacher_id', $teacher_id)
-            ->whereDate('date', $today)
-            ->pluck('student_id')
-            ->toArray();
 
-        $absentStudents = array_diff($allStudents, $presentStudents);
+        // 🔹 Check if this teacher has another session later today
+        $hasAnotherSession = Teacher::where('teacher_id', $teacher_id)
+            ->whereDate('check_in', $today)
+            ->whereNull('check_out')
+            ->exists();
 
-        foreach ($absentStudents as $sid) {
-            Student::create([
-                'student_id' => $sid,
-                'teacher_id' => $teacher_id,
-                'status'     => 'Absent',
-                'date'       => $today
-            ]);
+        if (!$hasAnotherSession) {
+            // Only mark absentees if no other session exists today
+            $allStudents = StudentID::pluck('student_id')->toArray();
+            $presentStudents = Student::where('teacher_id', $teacher_id)
+                ->whereDate('date', $today)
+                ->pluck('student_id')
+                ->toArray();
+
+            $absentStudents = array_diff($allStudents, $presentStudents);
+
+            foreach ($absentStudents as $sid) {
+                Student::create([
+                    'student_id' => $sid,
+                    'teacher_id' => $teacher_id,
+                    'status'     => 'Absent',
+                    'date'       => $today
+                ]);
+            }
         }
-//   broadcast(new TeacherCheckedIn($attendance))->toOthers();
 
         return response()->json([
-            'message' => 'Teacher checked out & absentees marked',
-            'status'=>'Out',
-        'time'=>Carbon::now('Asia/Yangon')->format('h:i A')
+            'message' => $hasAnotherSession 
+                ? 'Teacher checked out (students not marked absent yet, waiting for next session)'
+                : 'Teacher checked out & absentees marked',
+            'status'  => 'Out',
+            'time'    => $now->format('h:i A')
         ]);
     }
 }
+
 }

@@ -146,7 +146,7 @@
                     
                     <td>{{ $att->teacher_info->name }}-{{ $att->teacher_info->subject }}</td>
                     
-                    <td>{{ $att->check_in ? \Carbon\Carbon::parse($att->check_in)->format('h:i A'): '-' }}</td>
+                    <td>{{ $att->status == 'Present' ? \Carbon\Carbon::parse($att->check_in)->format('h:i A'): '-' }}</td>
                     <td class="{{ $att->status }}">
                         {{ $att->status }}
                     </td>

@@ -79,7 +79,7 @@ Swal.fire({
   `
 });
 
-                    updateStudentRow(data);
+                   // updateStudentRow(data);
                 }
                    lastStudentID= ID_key;
 
@@ -336,15 +336,15 @@ background-color: #e6363691;
                             </a>
                         </td>
                         <td>
-                            <a href="{{ route('students.profile', $student->student_id) }}">
+                           
                                 {{ $student->student_info->name }}
-                            </a>
+                   
                         </td>
                         <td>
                             {{ $student->teacher_info->name }} - {{ $student->teacher_info->subject }}
                         </td>
                         <td>
-                            {{ $student->check_in ? \Carbon\Carbon::parse($student->check_in)->format('h:i A') : '-' }}
+                            {{ $student->status == 'Present'? \Carbon\Carbon::parse($student->check_in)->format('h:i A') : '-' }}
                         </td>
                         <td class="{{ $student->status }}">
                             {{ $student->status }}

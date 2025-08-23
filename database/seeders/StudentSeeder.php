@@ -57,7 +57,7 @@ class StudentSeeder extends Seeder
                             $durationMinutes = $classEnd->diffInMinutes($classStart);
 
                             // Random late
-                            $isLateStudent = rand(1, 100) <= 30;
+                            $isLateStudent = rand(1, 100) <= 40;
 
                             if ($isLateStudent) {
                                 $minMinute = 10; // minimum 10 mins late
@@ -86,7 +86,7 @@ class StudentSeeder extends Seeder
                             'teacher_id' => $teacher_id,
                             'status'     => $status,
                             'date'       => $date->toDateString(),
-                            'check_in'   => $checkIn ? $checkIn->format('H:i:s') : null,
+                            'check_in'   => $checkIn ? $checkIn->format('H:i:s') : $classEnd->format('H:i:s'),
                             'created_at' => $datetime,
                             'updated_at' => $datetime,
                         ]);
