@@ -204,13 +204,11 @@ function updateTeacherRow(data) {
 
     
     let rowStyle = "";
-    if (data.checkout_type === "auto") {
-        rowStyle = "background-color: #e6363649; color: black;";
-    } else if (data.checkout_type === "In Class") {
-        rowStyle = "background-color: #1669e67a; color: black;";
-    } else if (data.checkout_type === "changed by admin") {
-        rowStyle = "background-color: #2dc6da57; color: black;";
-    }
+    if (data.checkout_type === "In Class") {
+        rowStyle = "background-color: #1669e67a; color: #07814eff; font-weight:bold";
+    } else {
+        rowStyle = "color: #07814eff; background-color: white;";
+    } 
 
     // Build row HTML
     let newRowHtml = `
@@ -220,7 +218,7 @@ function updateTeacherRow(data) {
        <td>${formatDay(data.created_at)}</td>
         <td>${data.check_in?convertToAMPM(data.check_in) : "-"}</td>
         <td>${data.check_out?convertToAMPM(data.check_out) : "-"}</td>
-        <td>${data.checkout_type}</td>
+        <td>${data.checkout_type=="In Class"?"In Class":"Finished"}</td>
         <td>${new Date().toISOString().split("T")[0]}</td>
         <td class="actions-cell">
             <div class="actions">
@@ -506,13 +504,13 @@ background-color: #e6363691;
                         @endif
                     </td>
                     <td 
-                        @if($teacher->checkout_type == 'auto') 
-        style="color: #c01e1eff;"  class="bold"
-         @elseif($teacher->checkout_type == 'manual') 
-        style="color: #087e8dff;"  class="bold"
-        @endif
+                     @if($teacher->checkout_type == 'In Class') 
+                    style="color: #07814eff;"  class="bold"
+                    @else
+                    style="color: #1454ca8a;" class="bold"
+                    @endif
                     >
-                        {{ $teacher->checkout_type }}
+                     {{$teacher->checkout_type == 'In Class'?'In Class': 'Finished'}}
                     </td>
                     <td data-order="{{ \Carbon\Carbon::parse($teacher->check_in)->format('Y-m-d') }}">
                         {{ \Carbon\Carbon::parse($teacher->check_in)->format('Y-m-d')}}

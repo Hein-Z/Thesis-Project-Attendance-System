@@ -118,10 +118,71 @@
         width: 100%;
       }
     }
+
+    
+    /* Fullscreen overlay */
+        #loading-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #2d4739, #1c2e25);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease;
+            color: #fff;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        /* Book icon animation (open/close effect) */
+        .book-icon {
+            font-size: 80px;
+            animation: bookOpenClose 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes bookOpenClose {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(15deg); }
+            100% { transform: rotateY(0deg); }
+        }
+
+        /* Pencil icon moving effect */
+        .pencil-icon {
+            font-size: 40px;
+            color: #f1c40f;
+            margin-top: 20px;
+            animation: pencilMove 2s linear infinite alternate;
+        }
+
+        @keyframes pencilMove {
+            0% { transform: translateX(-40px) rotate(-20deg); }
+            100% { transform: translateX(40px) rotate(-20deg); }
+        }
+
+        /* Chalkboard glowing text */
+        .loading-text {
+            margin-top: 40px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #fff;
+            animation: chalkGlow 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes chalkGlow {
+            from { text-shadow: 0 0 10px #fff, 0 0 20px #b4ffb4, 0 0 30px #00ff00; }
+            to { text-shadow: 0 0 20px #fff, 0 0 30px #33ff33, 0 0 40px #00cc00; }
+        }
   </style>
 </head>
 <body>
-
+   <div id="loading-screen">
+        <i class="fas fa-book book-icon"></i>
+        <i class="fas fa-pencil pencil-icon"></i>
+        <div class="loading-text">Loading School Classroom Management...</div>
+    </div>
+    <div id="app">
   <h2>School Timetable</h2>
 
   <table>
@@ -143,6 +204,18 @@
     <a class="cardBtn teachers" href="http://localhost:8000/teachers">Teachers' Attendance Table</a>
     <a class="cardBtn students" href="http://localhost:8000/students">Students' Attendance Table</a>
   </div>
-
+</div>
+<script>
+     // Keep loader for exactly 8 seconds
+        window.addEventListener("load", () => {
+            setTimeout(() => {
+                document.getElementById("loading-screen").style.opacity = "0";
+                setTimeout(() => {
+                    document.getElementById("loading-screen").style.display = "none";
+                    document.getElementById("app").style.opacity = "1";
+                }, 800); // fade out transition
+            }, 3000); // 8 seconds delay
+        });
+</script>
 </body>
 </html>
