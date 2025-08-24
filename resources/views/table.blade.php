@@ -7,6 +7,7 @@
 <!-- Load SweetAlert2 -->
 <script src="{{ asset('js/sweetalert.js') }}"></script>
 <script src="{{ asset('js/student-noti.js') }}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <!-- Load your notification script -->
 <script src="{{ asset('js/noti.js') }}"></script>
@@ -21,7 +22,10 @@
       align-items: center;
       gap: 30px;
     }
+#app{
+  width: 100%;
 
+}
     h2 {
       color: #111827;
     }
